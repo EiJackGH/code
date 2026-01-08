@@ -1,5 +1,32 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+
+def plot_simulation_results(signals):
+    """
+    Plots the simulation results, including price, moving averages, and buy/sell signals.
+    """
+    plt.figure(figsize=(14, 7))
+    plt.plot(signals['price'], label='Price')
+    plt.plot(signals['short_mavg'], label='Short-term MA')
+    plt.plot(signals['long_mavg'], label='Long-term MA')
+
+    # Plotting buy signals
+    plt.plot(signals.loc[signals.positions == 2.0].index,
+             signals.short_mavg[signals.positions == 2.0],
+             '^', markersize=10, color='g', lw=0, label='Buy Signal')
+
+    # Plotting sell signals
+    plt.plot(signals.loc[signals.positions == -2.0].index,
+             signals.short_mavg[signals.positions == -2.0],
+             'v', markersize=10, color='r', lw=0, label='Sell Signal')
+
+    plt.title('Bitcoin Trading Strategy Simulation')
+    plt.xlabel('Days')
+    plt.ylabel('Price (USD)')
+    plt.legend()
+    plt.savefig('simulation_plot.png')
+    plt.close()
 
 def simulate_bitcoin_prices(days=60, initial_price=50000, volatility=0.02):
     """
@@ -45,9 +72,9 @@ def simulate_trading(signals, initial_cash=10000):
     """
     Simulates trading based on signals and prints a daily ledger.
     """
-    portfolio = pd.DataFrame(index=signals.index).fillna(0.0)
+    portfolio = pd.DataFrame(index=signals.index)
     portfolio['price'] = signals['price']
-    portfolio['cash'] = initial_cash
+    portfolio['cash'] = float(initial_cash)
     portfolio['btc'] = 0.0
     portfolio['total_value'] = portfolio['cash']
 
@@ -105,3 +132,6 @@ if __name__ == "__main__":
     print(f"Profit/Loss: ${profit:.2f}")
     print(f"Buy and Hold Strategy Value: ${buy_and_hold_value:.2f}")
     print("-----------------------------------------")
+
+    # Plotting the results
+    plot_simulation_results(signals)
