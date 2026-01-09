@@ -47,33 +47,43 @@ def simulate_trading(signals, initial_cash=10000):
     """
     portfolio = pd.DataFrame(index=signals.index).fillna(0.0)
     portfolio['price'] = signals['price']
-    portfolio['cash'] = initial_cash
+    portfolio['cash'] = float(initial_cash)
     portfolio['btc'] = 0.0
-    portfolio['total_value'] = portfolio['cash']
+    portfolio['total_value'] = float(initial_cash)
 
-    print("------ Daily Trading Ledger ------")
+    # ANSI Colors
+    G, R, Y, C, RST = '\033[92m', '\033[91m', '\033[93m', '\033[96m', '\033[0m'
+
+    print(f"\n{C}{'Day':<4} | {'Action':<8} | {'Price':<12} | {'BTC Held':<10} | {'Cash':<12} | {'Portfolio Value':<15}{RST}")
+    print("-" * 75)
+
     for i, row in signals.iterrows():
+        action = ""
+        action_color = RST
+
         if i > 0:
             portfolio.loc[i, 'cash'] = portfolio.loc[i-1, 'cash']
             portfolio.loc[i, 'btc'] = portfolio.loc[i-1, 'btc']
 
-        # Buy signal
-        if row['positions'] == 2.0:
+        if row['positions'] == 2.0: # Buy
             btc_to_buy = portfolio.loc[i, 'cash'] / row['price']
             portfolio.loc[i, 'btc'] += btc_to_buy
             portfolio.loc[i, 'cash'] -= btc_to_buy * row['price']
-            print(f"Day {i}: Buy {btc_to_buy:.4f} BTC at ${row['price']:.2f}")
-
-        # Sell signal
-        elif row['positions'] == -2.0:
+            action = "🟢 BUY"
+            action_color = G
+        elif row['positions'] == -2.0: # Sell
             if portfolio.loc[i, 'btc'] > 0:
                 cash_received = portfolio.loc[i, 'btc'] * row['price']
                 portfolio.loc[i, 'cash'] += cash_received
-                print(f"Day {i}: Sell {portfolio.loc[i, 'btc']:.4f} BTC at ${row['price']:.2f}")
                 portfolio.loc[i, 'btc'] = 0
+                action = "🔴 SELL"
+                action_color = R
 
         portfolio.loc[i, 'total_value'] = portfolio.loc[i, 'cash'] + portfolio.loc[i, 'btc'] * row['price']
-        print(f"Day {i}: Portfolio Value: ${portfolio.loc[i, 'total_value']:.2f}, Cash: ${portfolio.loc[i, 'cash']:.2f}, BTC: {portfolio.loc[i, 'btc']:.4f}")
+
+        # Only print trades or significant days (first, last, every 5th) to reduce noise
+        if action or i == 0 or i == len(signals) - 1 or i % 5 == 0:
+            print(f"{i:<4} | {action_color}{action:<8}{RST} | ${row['price']:<11.2f} | {portfolio.loc[i, 'btc']:<10.4f} | ${portfolio.loc[i, 'cash']:<11.2f} | ${portfolio.loc[i, 'total_value']:<14.2f}")
     
     return portfolio
 
@@ -99,9 +109,12 @@ if __name__ == "__main__":
     buy_and_hold_btc = initial_cash / prices.iloc[0]
     buy_and_hold_value = buy_and_hold_btc * prices.iloc[-1]
     
-    print("\n------ Final Portfolio Performance ------")
-    print(f"Initial Cash: ${initial_cash:.2f}")
-    print(f"Final Portfolio Value: ${final_value:.2f}")
-    print(f"Profit/Loss: ${profit:.2f}")
-    print(f"Buy and Hold Strategy Value: ${buy_and_hold_value:.2f}")
-    print("-----------------------------------------")
+    G, R, RST = '\033[92m', '\033[91m', '\033[0m'
+    profit_color = G if profit >= 0 else R
+
+    print("\n------ 📊 Final Portfolio Performance ------")
+    print(f"Initial Cash:            ${initial_cash:,.2f}")
+    print(f"Final Portfolio Value:   ${final_value:,.2f}")
+    print(f"Profit/Loss:             {profit_color}${profit:,.2f}{RST}")
+    print(f"Buy and Hold Value:      ${buy_and_hold_value:,.2f}")
+    print("--------------------------------------------")
