@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 def simulate_bitcoin_prices(days=60, initial_price=50000, volatility=0.02):
     """
@@ -77,6 +78,32 @@ def simulate_trading(signals, initial_cash=10000):
     
     return portfolio
 
+def plot_simulation(signals):
+    """
+    Plots the simulation results, including price, moving averages, and trading signals.
+    """
+    plt.figure(figsize=(14, 7))
+    plt.plot(signals['price'], label='Bitcoin Price')
+    plt.plot(signals['short_mavg'], label='7-Day Moving Average', alpha=0.7)
+    plt.plot(signals['long_mavg'], label='30-Day Moving Average', alpha=0.7)
+
+    # Plot buy signals
+    plt.plot(signals.loc[signals['positions'] == 2.0].index,
+             signals.short_mavg[signals['positions'] == 2.0],
+             '^', markersize=10, color='g', lw=0, label='Buy Signal')
+
+    # Plot sell signals
+    plt.plot(signals.loc[signals['positions'] == -2.0].index,
+             signals.short_mavg[signals['positions'] == -2.0],
+             'v', markersize=10, color='r', lw=0, label='Sell Signal')
+
+    plt.title('Bitcoin Trading Simulation')
+    plt.xlabel('Days')
+    plt.ylabel('Price (USD)')
+    plt.legend()
+    plt.savefig('simulation_plot.png')
+    plt.show()
+
 if __name__ == "__main__":
     # Simulate prices
     prices = simulate_bitcoin_prices()
@@ -105,3 +132,6 @@ if __name__ == "__main__":
     print(f"Profit/Loss: ${profit:.2f}")
     print(f"Buy and Hold Strategy Value: ${buy_and_hold_value:.2f}")
     print("-----------------------------------------")
+
+    # Plot the simulation
+    plot_simulation(signals)
