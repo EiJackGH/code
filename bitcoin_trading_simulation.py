@@ -44,36 +44,55 @@ def generate_trading_signals(signals):
 def simulate_trading(signals, initial_cash=10000):
     """
     Simulates trading based on signals and prints a daily ledger.
+    Optimized to use numpy arrays instead of pandas iteration for speed.
     """
-    portfolio = pd.DataFrame(index=signals.index).fillna(0.0)
-    portfolio['price'] = signals['price']
-    portfolio['cash'] = initial_cash
-    portfolio['btc'] = 0.0
-    portfolio['total_value'] = portfolio['cash']
+    # Pre-allocate arrays for performance
+    n = len(signals)
+    index = signals.index
+    prices = signals['price'].values
+    positions = signals['positions'].values
+
+    cash = np.zeros(n, dtype=np.float64)
+    btc = np.zeros(n, dtype=np.float64)
+    total_value = np.zeros(n, dtype=np.float64)
+
+    current_cash = float(initial_cash)
+    current_btc = 0.0
 
     print("------ Daily Trading Ledger ------")
-    for i, row in signals.iterrows():
-        if i > 0:
-            portfolio.loc[i, 'cash'] = portfolio.loc[i-1, 'cash']
-            portfolio.loc[i, 'btc'] = portfolio.loc[i-1, 'btc']
+
+    for i in range(n):
+        price = prices[i]
+        pos = positions[i]
+        idx_label = index[i]
 
         # Buy signal
-        if row['positions'] == 2.0:
-            btc_to_buy = portfolio.loc[i, 'cash'] / row['price']
-            portfolio.loc[i, 'btc'] += btc_to_buy
-            portfolio.loc[i, 'cash'] -= btc_to_buy * row['price']
-            print(f"Day {i}: Buy {btc_to_buy:.4f} BTC at ${row['price']:.2f}")
+        if pos == 2.0:
+            btc_to_buy = current_cash / price
+            current_btc += btc_to_buy
+            current_cash -= btc_to_buy * price
+            print(f"Day {idx_label}: Buy {btc_to_buy:.4f} BTC at ${price:.2f}")
 
         # Sell signal
-        elif row['positions'] == -2.0:
-            if portfolio.loc[i, 'btc'] > 0:
-                cash_received = portfolio.loc[i, 'btc'] * row['price']
-                portfolio.loc[i, 'cash'] += cash_received
-                print(f"Day {i}: Sell {portfolio.loc[i, 'btc']:.4f} BTC at ${row['price']:.2f}")
-                portfolio.loc[i, 'btc'] = 0
+        elif pos == -2.0:
+            if current_btc > 0:
+                cash_received = current_btc * price
+                current_cash += cash_received
+                print(f"Day {idx_label}: Sell {current_btc:.4f} BTC at ${price:.2f}")
+                current_btc = 0.0
 
-        portfolio.loc[i, 'total_value'] = portfolio.loc[i, 'cash'] + portfolio.loc[i, 'btc'] * row['price']
-        print(f"Day {i}: Portfolio Value: ${portfolio.loc[i, 'total_value']:.2f}, Cash: ${portfolio.loc[i, 'cash']:.2f}, BTC: {portfolio.loc[i, 'btc']:.4f}")
+        cash[i] = current_cash
+        btc[i] = current_btc
+        total_value[i] = current_cash + current_btc * price
+
+        print(f"Day {idx_label}: Portfolio Value: ${total_value[i]:.2f}, Cash: ${current_cash:.2f}, BTC: {current_btc:.4f}")
+
+    portfolio = pd.DataFrame({
+        'price': prices,
+        'cash': cash,
+        'btc': btc,
+        'total_value': total_value
+    }, index=index)
     
     return portfolio
 
