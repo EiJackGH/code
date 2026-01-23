@@ -1,6 +1,18 @@
 import numpy as np
 import pandas as pd
 
+class Color:
+    PURPLE = '\033[95m'
+    CYAN = '\033[96m'
+    DARKCYAN = '\033[36m'
+    BLUE = '\033[94m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    END = '\033[0m'
+
 def simulate_bitcoin_prices(days=60, initial_price=50000, volatility=0.02):
     """
     Simulates Bitcoin prices for a given number of days using Geometric Brownian Motion.
@@ -51,7 +63,7 @@ def simulate_trading(signals, initial_cash=10000):
     portfolio['btc'] = 0.0
     portfolio['total_value'] = portfolio['cash']
 
-    print("------ Daily Trading Ledger ------")
+    print(f"\n{Color.PURPLE}{Color.BOLD}------ Daily Trading Ledger ------{Color.END}")
     for i, row in signals.iterrows():
         if i > 0:
             portfolio.loc[i, 'cash'] = portfolio.loc[i-1, 'cash']
@@ -62,18 +74,18 @@ def simulate_trading(signals, initial_cash=10000):
             btc_to_buy = portfolio.loc[i, 'cash'] / row['price']
             portfolio.loc[i, 'btc'] += btc_to_buy
             portfolio.loc[i, 'cash'] -= btc_to_buy * row['price']
-            print(f"Day {i}: Buy {btc_to_buy:.4f} BTC at ${row['price']:.2f}")
+            print(f"{Color.GREEN}🟢 Day {i}: BUY {btc_to_buy:.4f} BTC at ${row['price']:.2f}{Color.END}")
 
         # Sell signal
         elif row['positions'] == -2.0:
             if portfolio.loc[i, 'btc'] > 0:
                 cash_received = portfolio.loc[i, 'btc'] * row['price']
                 portfolio.loc[i, 'cash'] += cash_received
-                print(f"Day {i}: Sell {portfolio.loc[i, 'btc']:.4f} BTC at ${row['price']:.2f}")
+                print(f"{Color.RED}🔴 Day {i}: SELL {portfolio.loc[i, 'btc']:.4f} BTC at ${row['price']:.2f}{Color.END}")
                 portfolio.loc[i, 'btc'] = 0
 
         portfolio.loc[i, 'total_value'] = portfolio.loc[i, 'cash'] + portfolio.loc[i, 'btc'] * row['price']
-        print(f"Day {i}: Portfolio Value: ${portfolio.loc[i, 'total_value']:.2f}, Cash: ${portfolio.loc[i, 'cash']:.2f}, BTC: {portfolio.loc[i, 'btc']:.4f}")
+        # print(f"Day {i}: Portfolio Value: ${portfolio.loc[i, 'total_value']:.2f}, Cash: ${portfolio.loc[i, 'cash']:.2f}, BTC: {portfolio.loc[i, 'btc']:.4f}")
     
     return portfolio
 
@@ -99,9 +111,13 @@ if __name__ == "__main__":
     buy_and_hold_btc = initial_cash / prices.iloc[0]
     buy_and_hold_value = buy_and_hold_btc * prices.iloc[-1]
     
-    print("\n------ Final Portfolio Performance ------")
-    print(f"Initial Cash: ${initial_cash:.2f}")
-    print(f"Final Portfolio Value: ${final_value:.2f}")
-    print(f"Profit/Loss: ${profit:.2f}")
-    print(f"Buy and Hold Strategy Value: ${buy_and_hold_value:.2f}")
-    print("-----------------------------------------")
+    print(f"\n{Color.PURPLE}{Color.BOLD}------ Final Portfolio Performance ------{Color.END}")
+    print(f"Initial Cash:             ${initial_cash:.2f}")
+    print(f"Final Portfolio Value:    ${final_value:.2f}")
+
+    profit_color = Color.GREEN if profit >= 0 else Color.RED
+    profit_sign = "+" if profit >= 0 else ""
+    print(f"Profit/Loss:              {profit_color}{profit_sign}${profit:.2f}{Color.END}")
+
+    print(f"Buy and Hold Strategy:    ${buy_and_hold_value:.2f}")
+    print(f"{Color.PURPLE}-----------------------------------------{Color.END}")
