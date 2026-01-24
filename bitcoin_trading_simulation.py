@@ -12,14 +12,6 @@ class Colors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
-# ANSI color codes for visual enhancement
-class Colors:
-    HEADER = '\033[95m'
-    BLUE = '\033[94m'
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
 
 def simulate_bitcoin_prices(days=60, initial_price=50000, volatility=0.02):
     """
