@@ -2,6 +2,7 @@ import argparse
 import numpy as np
 import pandas as pd
 
+
 class Colors:
     HEADER = '\033[95m'
     BLUE = '\033[94m'
@@ -9,6 +10,7 @@ class Colors:
     RED = '\033[91m'
     ENDC = '\033[0m'
     BOLD = '\033[1m'
+
 
 def simulate_bitcoin_prices(days=60, initial_price=50000, volatility=0.02):
     """
@@ -24,6 +26,7 @@ def simulate_bitcoin_prices(days=60, initial_price=50000, volatility=0.02):
         prices.append(prices[-1] + price_change)
     return pd.Series(prices, name='Price')
 
+
 def calculate_moving_averages(prices, short_window=7, long_window=30):
     """
     Calculates short and long moving averages for a given price series.
@@ -33,6 +36,7 @@ def calculate_moving_averages(prices, short_window=7, long_window=30):
     signals['short_mavg'] = prices.rolling(window=short_window, min_periods=1, center=False).mean()
     signals['long_mavg'] = prices.rolling(window=long_window, min_periods=1, center=False).mean()
     return signals
+
 
 def generate_trading_signals(signals):
     """
@@ -49,6 +53,7 @@ def generate_trading_signals(signals):
     # We create 'positions' to represent the trading action: 1 for buy, -1 for sell, 0 for hold
     signals['positions'] = signals['signal'].diff().shift(1)
     return signals
+
 
 def simulate_trading(signals, initial_cash=10000, quiet=False):
     """
@@ -83,9 +88,13 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
 
         portfolio.loc[i, 'total_value'] = portfolio.loc[i, 'cash'] + portfolio.loc[i, 'btc'] * row['price']
         if not quiet:
-            print(f"Day {i}: Portfolio Value: ${portfolio.loc[i, 'total_value']:.2f}, Cash: ${portfolio.loc[i, 'cash']:.2f}, BTC: {portfolio.loc[i, 'btc']:.4f}")
+            print(
+                f"Day {i}: Portfolio Value: ${portfolio.loc[i, 'total_value']:.2f}, "
+                f"Cash: ${portfolio.loc[i, 'cash']:.2f}, BTC: {portfolio.loc[i, 'btc']:.4f}"
+            )
     
     return portfolio
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Bitcoin Trading Simulation')
