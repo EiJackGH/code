@@ -26,10 +26,27 @@ Run the simulation script:
 python bitcoin_trading_simulation.py
 ```
 
+### Options
+
+Customize the simulation with the following arguments:
+
+- `--days [int]`: Number of days to simulate (default: 60)
+- `--initial-price [float]`: Initial Bitcoin price (default: 50000)
+- `--volatility [float]`: Volatility factor (default: 0.02)
+- `--initial-cash [float]`: Initial cash available (default: 10000)
+- `--quiet`: Suppress daily ledger output
+- `--no-color`: Disable colored output
+
+Example:
+
+```bash
+python bitcoin_trading_simulation.py --days 100 --initial-cash 5000 --quiet
+```
+
 ## Tests
 
 Run the test suite:
 
 ```bash
-python test.py
+pytest
 ```
