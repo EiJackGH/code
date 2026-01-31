@@ -1,3 +1,4 @@
+import argparse
 import numpy as np
 import pandas as pd
 
@@ -49,7 +50,7 @@ def generate_trading_signals(signals):
     signals['positions'] = signals['signal'].diff().shift(1)
     return signals
 
-def simulate_trading(signals, initial_cash=10000):
+def simulate_trading(signals, initial_cash=10000, quiet=False):
     """
     Simulates trading based on signals and prints a daily ledger.
     """
@@ -59,7 +60,9 @@ def simulate_trading(signals, initial_cash=10000):
     portfolio['btc'] = 0.0
     portfolio['total_value'] = float(initial_cash)
 
-    print(f"{Colors.HEADER}{Colors.BOLD}------ Daily Trading Ledger ------{Colors.ENDC}")
+    if not quiet:
+        print(f"{Colors.HEADER}{Colors.BOLD}------ Daily Trading Ledger ------{Colors.ENDC}")
+
     for i, row in signals.iterrows():
         if i > 0:
             portfolio.loc[i, 'cash'] = portfolio.loc[i-1, 'cash']
@@ -70,24 +73,48 @@ def simulate_trading(signals, initial_cash=10000):
             btc_to_buy = portfolio.loc[i, 'cash'] / row['price']
             portfolio.loc[i, 'btc'] += btc_to_buy
             portfolio.loc[i, 'cash'] -= btc_to_buy * row['price']
-            print(f"{Colors.GREEN}Day {i}: 💰 Buy {btc_to_buy:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
+            if not quiet:
+                print(f"{Colors.GREEN}Day {i}: 💰 Buy {btc_to_buy:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
 
         # Sell signal
         elif row['positions'] == -2.0:
             if portfolio.loc[i, 'btc'] > 0:
                 cash_received = portfolio.loc[i, 'btc'] * row['price']
                 portfolio.loc[i, 'cash'] += cash_received
-                print(f"{Colors.RED}Day {i}: 📉 Sell {portfolio.loc[i, 'btc']:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
+                if not quiet:
+                    print(f"{Colors.RED}Day {i}: 📉 Sell {portfolio.loc[i, 'btc']:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
                 portfolio.loc[i, 'btc'] = 0
 
         portfolio.loc[i, 'total_value'] = portfolio.loc[i, 'cash'] + portfolio.loc[i, 'btc'] * row['price']
-        print(f"Day {i}: Portfolio Value: ${portfolio.loc[i, 'total_value']:.2f}, Cash: ${portfolio.loc[i, 'cash']:.2f}, BTC: {portfolio.loc[i, 'btc']:.4f}")
+
+        if not quiet:
+            print(f"Day {i}: Portfolio Value: ${portfolio.loc[i, 'total_value']:.2f}, Cash: ${portfolio.loc[i, 'cash']:.2f}, BTC: {portfolio.loc[i, 'btc']:.4f}")
     
     return portfolio
 
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Bitcoin Trading Simulation')
+    parser.add_argument('--days', type=int, default=60, help='Number of days to simulate')
+    parser.add_argument('--initial-cash', type=float, default=10000, help='Initial cash amount')
+    parser.add_argument('--initial-price', type=float, default=50000, help='Initial Bitcoin price')
+    parser.add_argument('--volatility', type=float, default=0.02, help='Volatility factor')
+    parser.add_argument('--quiet', '-q', action='store_true', help='Suppress daily ledger output')
+    parser.add_argument('--no-color', action='store_true', help='Disable colored output')
+    return parser.parse_args()
+
 if __name__ == "__main__":
+    args = parse_arguments()
+
+    if args.no_color:
+        Colors.HEADER = ''
+        Colors.BLUE = ''
+        Colors.GREEN = ''
+        Colors.RED = ''
+        Colors.ENDC = ''
+        Colors.BOLD = ''
+
     # Simulate prices
-    prices = simulate_bitcoin_prices()
+    prices = simulate_bitcoin_prices(days=args.days, initial_price=args.initial_price, volatility=args.volatility)
     
     # Calculate moving averages
     signals = calculate_moving_averages(prices)
@@ -96,11 +123,11 @@ if __name__ == "__main__":
     signals = generate_trading_signals(signals)
     
     # Simulate trading
-    portfolio = simulate_trading(signals)
+    portfolio = simulate_trading(signals, initial_cash=args.initial_cash, quiet=args.quiet)
     
     # Final portfolio performance
     final_value = portfolio['total_value'].iloc[-1]
-    initial_cash = 10000
+    initial_cash = args.initial_cash
     profit = final_value - initial_cash
     
     # Compare with buy and hold strategy
