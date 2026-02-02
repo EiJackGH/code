@@ -31,5 +31,5 @@ python bitcoin_trading_simulation.py
 Run the test suite:
 
 ```bash
-python test.py
+pytest
 ```
