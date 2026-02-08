@@ -7,6 +7,7 @@ from bitcoin_trading_simulation import (
     simulate_trading
 )
 
+
 class TestBitcoinSimulation(unittest.TestCase):
     def test_simulate_bitcoin_prices(self):
         days = 10
@@ -38,6 +39,7 @@ class TestBitcoinSimulation(unittest.TestCase):
         self.assertIn('cash', portfolio.columns)
         self.assertIn('btc', portfolio.columns)
         self.assertEqual(len(portfolio), 20)
+
 
 if __name__ == '__main__':
     unittest.main()
