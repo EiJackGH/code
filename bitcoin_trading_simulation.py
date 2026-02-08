@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+import argparse
+
 
 class Colors:
     HEADER = '\033[95m'
@@ -8,6 +10,16 @@ class Colors:
     RED = '\033[91m'
     ENDC = '\033[0m'
     BOLD = '\033[1m'
+
+    @classmethod
+    def disable(cls):
+        cls.HEADER = ''
+        cls.BLUE = ''
+        cls.GREEN = ''
+        cls.RED = ''
+        cls.ENDC = ''
+        cls.BOLD = ''
+
 
 def simulate_bitcoin_prices(days=60, initial_price=50000, volatility=0.02):
     """
@@ -23,6 +35,7 @@ def simulate_bitcoin_prices(days=60, initial_price=50000, volatility=0.02):
         prices.append(prices[-1] + price_change)
     return pd.Series(prices, name='Price')
 
+
 def calculate_moving_averages(prices, short_window=7, long_window=30):
     """
     Calculates short and long moving averages for a given price series.
@@ -32,6 +45,7 @@ def calculate_moving_averages(prices, short_window=7, long_window=30):
     signals['short_mavg'] = prices.rolling(window=short_window, min_periods=1, center=False).mean()
     signals['long_mavg'] = prices.rolling(window=long_window, min_periods=1, center=False).mean()
     return signals
+
 
 def generate_trading_signals(signals):
     """
@@ -44,12 +58,13 @@ def generate_trading_signals(signals):
     signals.loc[signals['short_mavg'] > signals['long_mavg'], 'signal'] = 1.0
     # A Death Cross (sell signal)
     signals.loc[signals['short_mavg'] < signals['long_mavg'], 'signal'] = -1.0
-    
+
     # We create 'positions' to represent the trading action: 1 for buy, -1 for sell, 0 for hold
     signals['positions'] = signals['signal'].diff().shift(1)
     return signals
 
-def simulate_trading(signals, initial_cash=10000):
+
+def simulate_trading(signals, initial_cash=10000, quiet=False):
     """
     Simulates trading based on signals and prints a daily ledger.
     """
@@ -59,11 +74,13 @@ def simulate_trading(signals, initial_cash=10000):
     portfolio['btc'] = 0.0
     portfolio['total_value'] = float(initial_cash)
 
-    print(f"{Colors.HEADER}{Colors.BOLD}------ Daily Trading Ledger ------{Colors.ENDC}")
+    if not quiet:
+        print(f"{Colors.HEADER}{Colors.BOLD}------ Daily Trading Ledger ------{Colors.ENDC}")
+
     for i, row in signals.iterrows():
         if i > 0:
-            portfolio.loc[i, 'cash'] = portfolio.loc[i-1, 'cash']
-            portfolio.loc[i, 'btc'] = portfolio.loc[i-1, 'btc']
+            portfolio.loc[i, 'cash'] = portfolio.loc[i - 1, 'cash']
+            portfolio.loc[i, 'btc'] = portfolio.loc[i - 1, 'btc']
 
         # Buy signal
         if row['positions'] == 2.0:
@@ -81,32 +98,49 @@ def simulate_trading(signals, initial_cash=10000):
                 portfolio.loc[i, 'btc'] = 0
 
         portfolio.loc[i, 'total_value'] = portfolio.loc[i, 'cash'] + portfolio.loc[i, 'btc'] * row['price']
-        print(f"Day {i}: Portfolio Value: ${portfolio.loc[i, 'total_value']:.2f}, Cash: ${portfolio.loc[i, 'cash']:.2f}, BTC: {portfolio.loc[i, 'btc']:.4f}")
-    
+
+        if not quiet:
+            print(f"Day {i}: Portfolio Value: ${portfolio.loc[i, 'total_value']:.2f}, "
+                  f"Cash: ${portfolio.loc[i, 'cash']:.2f}, BTC: {portfolio.loc[i, 'btc']:.4f}")
+
     return portfolio
 
+
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Bitcoin Trading Simulation")
+    parser.add_argument("--days", type=int, default=60, help="Number of days to simulate")
+    parser.add_argument("--initial-cash", type=float, default=10000, help="Initial cash amount")
+    parser.add_argument("--initial-price", type=float, default=50000, help="Initial Bitcoin price")
+    parser.add_argument("--volatility", type=float, default=0.02, help="Price volatility")
+    parser.add_argument("--quiet", action="store_true", help="Suppress daily ledger output")
+    parser.add_argument("--no-color", action="store_true", help="Disable colored output")
+
+    args = parser.parse_args()
+
+    if args.no_color:
+        Colors.disable()
+
     # Simulate prices
-    prices = simulate_bitcoin_prices()
-    
+    prices = simulate_bitcoin_prices(days=args.days, initial_price=args.initial_price, volatility=args.volatility)
+
     # Calculate moving averages
     signals = calculate_moving_averages(prices)
-    
+
     # Generate trading signals
     signals = generate_trading_signals(signals)
-    
+
     # Simulate trading
-    portfolio = simulate_trading(signals)
-    
+    portfolio = simulate_trading(signals, initial_cash=args.initial_cash, quiet=args.quiet)
+
     # Final portfolio performance
     final_value = portfolio['total_value'].iloc[-1]
-    initial_cash = 10000
+    initial_cash = args.initial_cash
     profit = final_value - initial_cash
-    
+
     # Compare with buy and hold strategy
     buy_and_hold_btc = initial_cash / prices.iloc[0]
     buy_and_hold_value = buy_and_hold_btc * prices.iloc[-1]
-    
+
     print(f"\n{Colors.HEADER}{Colors.BOLD}------ Final Portfolio Performance ------{Colors.ENDC}")
     print(f"Initial Cash: ${initial_cash:.2f}")
     print(f"Final Portfolio Value: ${final_value:.2f}")
