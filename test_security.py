@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import patch
 from io import StringIO
-import sys
 from bitcoin_trading_simulation import main
+
 
 class TestSecurity(unittest.TestCase):
 
@@ -40,6 +40,7 @@ class TestSecurity(unittest.TestCase):
                 main(['--volatility', '-0.1'])
         self.assertEqual(cm.exception.code, 1)
         self.assertIn("Error: --volatility must be non-negative.", fake_err.getvalue())
+
 
 if __name__ == '__main__':
     unittest.main()

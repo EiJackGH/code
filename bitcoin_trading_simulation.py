@@ -141,7 +141,11 @@ def main(args=None):
         Colors.disable()
 
     # Simulate prices
-    prices = simulate_bitcoin_prices(days=parsed_args.days, initial_price=parsed_args.initial_price, volatility=parsed_args.volatility)
+    prices = simulate_bitcoin_prices(
+        days=parsed_args.days,
+        initial_price=parsed_args.initial_price,
+        volatility=parsed_args.volatility
+    )
 
     # Calculate moving averages
     signals = calculate_moving_averages(prices)
