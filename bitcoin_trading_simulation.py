@@ -155,3 +155,23 @@ if __name__ == "__main__":
 
     print(f"Buy and Hold Strategy Value: ${buy_and_hold_value:.2f}")
     print(f"{Colors.HEADER}-----------------------------------------{Colors.ENDC}")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Bitcoin Trading Simulation')
+    parser.add_argument('--days', type=int, default=60, help='Number of days to simulate')
+    parser.add_argument('--initial-cash', type=float, default=10000, help='Initial cash amount')
+    parser.add_argument('--initial-price', type=float, default=50000, help='Initial Bitcoin price')
+    parser.add_argument('--volatility', type=float, default=0.02, help='Volatility factor')
+    parser.add_argument('--quiet', action='store_true', help='Suppress daily output')
+    parser.add_argument('--no-color', action='store_true', help='Disable colored output')
+
+    args = parser.parse_args()
+
+    main(
+        days=args.days,
+        initial_price=args.initial_price,
+        volatility=args.volatility,
+        initial_cash=args.initial_cash,
+        quiet=args.quiet,
+        no_color=args.no_color
+    )
