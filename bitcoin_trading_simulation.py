@@ -14,14 +14,19 @@ def simulate_bitcoin_prices(days=60, initial_price=50000, volatility=0.02):
     Simulates Bitcoin prices for a given number of days using Geometric Brownian Motion.
     """
     dt = 1
-    prices = [initial_price]
-    for _ in range(days - 1):
-        # Using a simplified model for daily price changes
-        drift = 0  # Assuming no long-term drift for simplicity
-        shock = np.random.normal(0, volatility)
-        price_change = prices[-1] * (drift * dt + shock * np.sqrt(dt))
-        prices.append(prices[-1] + price_change)
+    # Using a simplified model for daily price changes
+    drift = 0  # Assuming no long-term drift for simplicity
+
+    # Vectorized Geometric Brownian Motion simulation
+    shocks = np.random.normal(0, volatility, days - 1)
+    multipliers = 1 + drift * dt + shocks * np.sqrt(dt)
+
+    prices = np.empty(days)
+    prices[0] = initial_price
+    prices[1:] = initial_price * np.cumprod(multipliers)
+
     return pd.Series(prices, name='Price')
+
 
 def calculate_moving_averages(prices, short_window=7, long_window=30):
     """
