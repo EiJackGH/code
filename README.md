@@ -20,10 +20,27 @@ pip install -r requirements.txt
 
 ## Usage
 
-Run the simulation script:
+Run the simulation script with default settings:
 
 ```bash
 python bitcoin_trading_simulation.py
+```
+
+### Options
+
+You can customize the simulation with the following arguments:
+
+- `--days`: Number of days to simulate (default: 60)
+- `--initial-cash`: Initial cash amount (default: 10000)
+- `--initial-price`: Initial Bitcoin price (default: 50000)
+- `--volatility`: Volatility factor (default: 0.02)
+- `--quiet`: Suppress daily ledger output (show only final results)
+- `--no-color`: Disable colored output (for accessibility)
+
+**Example:**
+
+```bash
+python bitcoin_trading_simulation.py --days 100 --initial-cash 5000 --quiet
 ```
 
 ## Tests
@@ -31,5 +48,5 @@ python bitcoin_trading_simulation.py
 Run the test suite:
 
 ```bash
-python test.py
+python -m unittest test_bitcoin_trading.py
 ```
