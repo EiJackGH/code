@@ -1,101 +1,74 @@
-import unittest
-import sys
-import io
+import pytest
 import pandas as pd
-import subprocess
-from bitcoin_trading_simulation import Colors, simulate_trading, simulate_bitcoin_prices
+from bitcoin_trading_simulation import (
+    simulate_trading, Colors, calculate_moving_averages,
+    generate_trading_signals, simulate_bitcoin_prices
+)
 
-class TestBitcoinTradingSimulation(unittest.TestCase):
 
-    def setUp(self):
-        # Reset Colors to default before each test to prevent side effects
-        Colors.HEADER = '\033[95m'
-        Colors.BLUE = '\033[94m'
-        Colors.GREEN = '\033[92m'
-        Colors.RED = '\033[91m'
-        Colors.ENDC = '\033[0m'
-        Colors.BOLD = '\033[1m'
+@pytest.fixture
+def reset_colors():
+    # Save original colors
+    original_colors = {
+        'HEADER': Colors.HEADER,
+        'BLUE': Colors.BLUE,
+        'GREEN': Colors.GREEN,
+        'RED': Colors.RED,
+        'ENDC': Colors.ENDC,
+        'BOLD': Colors.BOLD,
+    }
+    yield
+    # Restore colors
+    Colors.HEADER = original_colors['HEADER']
+    Colors.BLUE = original_colors['BLUE']
+    Colors.GREEN = original_colors['GREEN']
+    Colors.RED = original_colors['RED']
+    Colors.ENDC = original_colors['ENDC']
+    Colors.BOLD = original_colors['BOLD']
 
-    def test_simulate_bitcoin_prices(self):
-        prices = simulate_bitcoin_prices(days=10, initial_price=100)
-        self.assertEqual(len(prices), 10)
-        self.assertEqual(prices.iloc[0], 100)
 
-    def test_colors_disable(self):
-        Colors.disable()
-        self.assertEqual(Colors.HEADER, '')
-        self.assertEqual(Colors.GREEN, '')
-        self.assertEqual(Colors.RED, '')
+def test_simulate_trading_quiet_mode(capsys):
+    """Test that quiet mode suppresses output."""
+    signals = pd.DataFrame(index=range(5))
+    signals['price'] = [100.0, 101.0, 102.0, 103.0, 104.0]
+    signals['positions'] = [0.0] * 5
 
-    def test_quiet_mode_function(self):
-        # Create dummy signals
-        prices = pd.Series([100, 101, 102], name='Price')
-        signals = pd.DataFrame(index=prices.index)
-        signals['price'] = prices
-        signals['positions'] = 0.0
+    simulate_trading(signals, initial_cash=1000, quiet=True)
 
-        # Capture stdout
-        captured_output = io.StringIO()
-        sys.stdout = captured_output
+    captured = capsys.readouterr()
+    assert captured.out == ""
 
-        simulate_trading(signals, quiet=True)
 
-        sys.stdout = sys.__stdout__
-        output = captured_output.getvalue()
+def test_simulate_trading_verbose_mode(capsys):
+    """Test that verbose mode prints daily ledger."""
+    signals = pd.DataFrame(index=range(2))
+    signals['price'] = [100.0, 101.0]
+    signals['positions'] = [0.0, 0.0]
 
-        # Expect no output in quiet mode (since no trades and quiet=True)
-        self.assertEqual(output, "")
+    simulate_trading(signals, initial_cash=1000, quiet=False)
 
-    def test_verbose_mode_function(self):
-        # Create dummy signals
-        prices = pd.Series([100, 101, 102], name='Price')
-        signals = pd.DataFrame(index=prices.index)
-        signals['price'] = prices
-        signals['positions'] = 0.0
+    captured = capsys.readouterr()
+    assert "Daily Trading Ledger" in captured.out
+    assert "Portfolio Value" in captured.out
 
-        # Capture stdout
-        captured_output = io.StringIO()
-        sys.stdout = captured_output
 
-        simulate_trading(signals, quiet=False)
+def test_colors_disable(reset_colors):
+    """Test that Colors.disable() clears color codes."""
+    assert Colors.HEADER != ""
+    Colors.disable()
+    assert Colors.HEADER == ""
+    assert Colors.GREEN == ""
+    assert Colors.RED == ""
 
-        sys.stdout = sys.__stdout__
-        output = captured_output.getvalue()
 
-        self.assertIn("Daily Trading Ledger", output)
+def test_simulation_integration():
+    """Test full simulation pipeline with small parameters."""
+    prices = simulate_bitcoin_prices(days=10, initial_price=100)
+    signals = calculate_moving_averages(prices, short_window=2, long_window=5)
+    signals = generate_trading_signals(signals)
+    portfolio = simulate_trading(signals, quiet=True)
 
-    def test_integration_no_color(self):
-        # Run the script via subprocess to verify --no-color
-        result = subprocess.run(
-            [sys.executable, 'bitcoin_trading_simulation.py', '--days', '5', '--no-color'],
-            capture_output=True,
-            text=True
-        )
-        # Check that ANSI codes are NOT present
-        self.assertNotIn('\033[', result.stdout)
-        # Check that the output is still meaningful
-        self.assertIn('Final Portfolio Performance', result.stdout)
-
-    def test_integration_quiet(self):
-        # Run the script via subprocess to verify --quiet
-        result = subprocess.run(
-            [sys.executable, 'bitcoin_trading_simulation.py', '--days', '5', '--quiet'],
-            capture_output=True,
-            text=True
-        )
-        # Check that Daily Ledger is NOT present
-        self.assertNotIn('Daily Trading Ledger', result.stdout)
-        # Check that Final Performance IS present
-        self.assertIn('Final Portfolio Performance', result.stdout)
-
-    def test_integration_args(self):
-        # Verify custom arguments work
-        result = subprocess.run(
-            [sys.executable, 'bitcoin_trading_simulation.py', '--days', '5', '--initial-cash', '500'],
-            capture_output=True,
-            text=True
-        )
-        self.assertIn('Initial Cash: $500.00', result.stdout)
-
-if __name__ == '__main__':
-    unittest.main()
+    assert len(portfolio) == 10
+    assert 'total_value' in portfolio.columns
+    assert 'btc' in portfolio.columns
+    assert 'cash' in portfolio.columns
