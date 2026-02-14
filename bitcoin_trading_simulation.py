@@ -1,7 +1,7 @@
 import argparse
+import sys
 import numpy as np
 import pandas as pd
-import argparse
 
 
 class Colors:
@@ -109,7 +109,7 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
     return portfolio
 
 
-if __name__ == "__main__":
+def main(args=None):
     parser = argparse.ArgumentParser(description="Bitcoin Trading Simulation")
     parser.add_argument("--days", type=int, default=60, help="Number of days to simulate")
     parser.add_argument("--initial-cash", type=float, default=10000, help="Initial cash amount")
@@ -118,13 +118,30 @@ if __name__ == "__main__":
     parser.add_argument("--quiet", action="store_true", help="Suppress daily portfolio log")
     parser.add_argument("--no-color", action="store_true", help="Disable colored output")
 
-    args = parser.parse_args()
+    parsed_args = parser.parse_args(args)
 
-    if args.no_color:
+    # Input Validation
+    if parsed_args.days <= 0:
+        sys.stderr.write("Error: --days must be positive.\n")
+        sys.exit(1)
+    if parsed_args.days > 36500:
+        sys.stderr.write("Error: --days must be <= 36500 to prevent resource exhaustion.\n")
+        sys.exit(1)
+    if parsed_args.initial_cash < 0:
+        sys.stderr.write("Error: --initial-cash must be non-negative.\n")
+        sys.exit(1)
+    if parsed_args.initial_price <= 0:
+        sys.stderr.write("Error: --initial-price must be positive.\n")
+        sys.exit(1)
+    if parsed_args.volatility < 0:
+        sys.stderr.write("Error: --volatility must be non-negative.\n")
+        sys.exit(1)
+
+    if parsed_args.no_color:
         Colors.disable()
 
     # Simulate prices
-    prices = simulate_bitcoin_prices(days=args.days, initial_price=args.initial_price, volatility=args.volatility)
+    prices = simulate_bitcoin_prices(days=parsed_args.days, initial_price=parsed_args.initial_price, volatility=parsed_args.volatility)
 
     # Calculate moving averages
     signals = calculate_moving_averages(prices)
@@ -133,19 +150,19 @@ if __name__ == "__main__":
     signals = generate_trading_signals(signals)
 
     # Simulate trading
-    portfolio = simulate_trading(signals, initial_cash=args.initial_cash, quiet=args.quiet)
+    portfolio = simulate_trading(signals, initial_cash=parsed_args.initial_cash, quiet=parsed_args.quiet)
 
     # Final portfolio performance
     final_value = portfolio['total_value'].iloc[-1]
-    initial_cash = args.initial_cash
+    initial_cash = parsed_args.initial_cash
     profit = final_value - initial_cash
 
     # Compare with buy and hold strategy
-    buy_and_hold_btc = args.initial_cash / prices.iloc[0]
+    buy_and_hold_btc = parsed_args.initial_cash / prices.iloc[0]
     buy_and_hold_value = buy_and_hold_btc * prices.iloc[-1]
 
     print(f"\n{Colors.HEADER}{Colors.BOLD}------ Final Portfolio Performance ------{Colors.ENDC}")
-    print(f"Initial Cash: ${args.initial_cash:.2f}")
+    print(f"Initial Cash: ${parsed_args.initial_cash:.2f}")
     print(f"Final Portfolio Value: ${final_value:.2f}")
 
     if profit >= 0:
@@ -156,22 +173,6 @@ if __name__ == "__main__":
     print(f"Buy and Hold Strategy Value: ${buy_and_hold_value:.2f}")
     print(f"{Colors.HEADER}-----------------------------------------{Colors.ENDC}")
 
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Bitcoin Trading Simulation')
-    parser.add_argument('--days', type=int, default=60, help='Number of days to simulate')
-    parser.add_argument('--initial-cash', type=float, default=10000, help='Initial cash amount')
-    parser.add_argument('--initial-price', type=float, default=50000, help='Initial Bitcoin price')
-    parser.add_argument('--volatility', type=float, default=0.02, help='Volatility factor')
-    parser.add_argument('--quiet', action='store_true', help='Suppress daily output')
-    parser.add_argument('--no-color', action='store_true', help='Disable colored output')
-
-    args = parser.parse_args()
-
-    main(
-        days=args.days,
-        initial_price=args.initial_price,
-        volatility=args.volatility,
-        initial_cash=args.initial_cash,
-        quiet=args.quiet,
-        no_color=args.no_color
-    )
+    main()
