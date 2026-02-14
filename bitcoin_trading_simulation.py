@@ -77,7 +77,6 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
 
     if not quiet:
         print(f"{Colors.HEADER}{Colors.BOLD}------ Daily Trading Ledger ------{Colors.ENDC}")
-
     for i, row in signals.iterrows():
         if i > 0:
             portfolio.loc[i, 'cash'] = portfolio.loc[i-1, 'cash']
@@ -101,24 +100,19 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
                 portfolio.loc[i, 'btc'] = 0
 
         portfolio.loc[i, 'total_value'] = portfolio.loc[i, 'cash'] + portfolio.loc[i, 'btc'] * row['price']
-
-        if not quiet:
-            print(f"Day {i}: Portfolio Value: ${portfolio.loc[i, 'total_value']:.2f}, "
-                  f"Cash: ${portfolio.loc[i, 'cash']:.2f}, BTC: {portfolio.loc[i, 'btc']:.4f}")
-
-    return portfolio
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Bitcoin Trading Simulation')
+    parser.add_argument('--days', type=int, default=60, help='Number of days to simulate')
+    parser.add_argument('--initial-price', type=float, default=50000, help='Initial Bitcoin price')
+    parser.add_argument('--volatility', type=float, default=0.02, help='Volatility factor')
+    parser.add_argument('--initial-cash', type=float, default=10000, help='Initial cash')
+    parser.add_argument('--no-color', action='store_true', help='Disable colored output')
+    parser.add_argument('--quiet', action='store_true', help='Suppress daily ledger output')
+    return parser.parse_args()
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Bitcoin Trading Simulation")
-    parser.add_argument("--days", type=int, default=60, help="Number of days to simulate")
-    parser.add_argument("--initial-cash", type=float, default=10000, help="Initial cash amount")
-    parser.add_argument("--initial-price", type=float, default=50000, help="Initial Bitcoin price")
-    parser.add_argument("--volatility", type=float, default=0.02, help="Price volatility")
-    parser.add_argument("--quiet", action="store_true", help="Suppress daily portfolio log")
-    parser.add_argument("--no-color", action="store_true", help="Disable colored output")
-
-    args = parser.parse_args()
+    args = parse_arguments()
 
     if args.no_color:
         Colors.disable()

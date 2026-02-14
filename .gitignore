@@ -39,7 +39,5 @@
 
 # debug information files
 *.dwo
-
-# Python
 __pycache__/
 *.pyc
