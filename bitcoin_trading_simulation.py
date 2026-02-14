@@ -85,12 +85,7 @@ def simulate_trading(signals, initial_cash=10000):
             btc_to_buy = portfolio.loc[i, 'cash'] / row['price']
             portfolio.loc[i, 'btc'] += btc_to_buy
             portfolio.loc[i, 'cash'] -= btc_to_buy * row['price']
-            print(
-                f"{
-                    Colors.GREEN}Day {i}: 💰 Buy {
-                    btc_to_buy:.4f} BTC at ${
-                    row['price']:.2f}{
-                    Colors.ENDC}")
+            print(f"{Colors.GREEN}Day {i}: 💰 Buy {btc_to_buy:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
 
         # Sell signal
         elif row['positions'] == -2.0:
@@ -98,12 +93,7 @@ def simulate_trading(signals, initial_cash=10000):
                 amount_sold = portfolio.loc[i, 'btc']
                 cash_received = amount_sold * row['price']
                 portfolio.loc[i, 'cash'] += cash_received
-                print(
-                    f"{
-                        Colors.FAIL}Day {i}: 📉 Sell {
-                        amount_sold:.4f} BTC at ${
-                        row['price']:.2f}{
-                        Colors.ENDC}")
+                print(f"{Colors.FAIL}Day {i}: 📉 Sell {amount_sold:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
                 portfolio.loc[i, 'btc'] = 0
 
         portfolio.loc[i, 'total_value'] = portfolio.loc[i,
