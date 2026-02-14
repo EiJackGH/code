@@ -2,6 +2,7 @@ import argparse
 import sys
 import numpy as np
 import pandas as pd
+import argparse
 
 class Colors:
     HEADER = '\033[95m'
