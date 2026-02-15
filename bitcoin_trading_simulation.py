@@ -1,7 +1,7 @@
 import argparse
+import sys
 import numpy as np
 import pandas as pd
-import argparse
 
 
 class Colors:
@@ -109,7 +109,7 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
     return portfolio
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="Bitcoin Trading Simulation")
     parser.add_argument("--days", type=int, default=60, help="Number of days to simulate")
     parser.add_argument("--initial-cash", type=float, default=10000, help="Initial cash amount")
@@ -119,6 +119,23 @@ if __name__ == "__main__":
     parser.add_argument("--no-color", action="store_true", help="Disable colored output")
 
     args = parser.parse_args()
+
+    # Input Validation
+    if args.days <= 0:
+        print(f"{Colors.RED}Error: Simulation days must be a positive integer.{Colors.ENDC}")
+        sys.exit(1)
+
+    if args.initial_cash < 0:
+        print(f"{Colors.RED}Error: Initial cash cannot be negative.{Colors.ENDC}")
+        sys.exit(1)
+
+    if args.initial_price <= 0:
+        print(f"{Colors.RED}Error: Initial Bitcoin price must be positive.{Colors.ENDC}")
+        sys.exit(1)
+
+    if args.volatility < 0:
+        print(f"{Colors.RED}Error: Volatility cannot be negative.{Colors.ENDC}")
+        sys.exit(1)
 
     if args.no_color:
         Colors.disable()
@@ -156,22 +173,6 @@ if __name__ == "__main__":
     print(f"Buy and Hold Strategy Value: ${buy_and_hold_value:.2f}")
     print(f"{Colors.HEADER}-----------------------------------------{Colors.ENDC}")
 
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Bitcoin Trading Simulation')
-    parser.add_argument('--days', type=int, default=60, help='Number of days to simulate')
-    parser.add_argument('--initial-cash', type=float, default=10000, help='Initial cash amount')
-    parser.add_argument('--initial-price', type=float, default=50000, help='Initial Bitcoin price')
-    parser.add_argument('--volatility', type=float, default=0.02, help='Volatility factor')
-    parser.add_argument('--quiet', action='store_true', help='Suppress daily output')
-    parser.add_argument('--no-color', action='store_true', help='Disable colored output')
-
-    args = parser.parse_args()
-
-    main(
-        days=args.days,
-        initial_price=args.initial_price,
-        volatility=args.volatility,
-        initial_cash=args.initial_cash,
-        quiet=args.quiet,
-        no_color=args.no_color
-    )
+    main()
