@@ -1,6 +1,8 @@
 import argparse
 import numpy as np
 import pandas as pd
+import argparse
+
 
 
 class Colors:
@@ -102,18 +104,29 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
         portfolio.loc[i, 'total_value'] = portfolio.loc[i, 'cash'] + portfolio.loc[i, 'btc'] * row['price']
 
         if not quiet:
-            print(f"Day {i:<3}: Portfolio Value: ${portfolio.loc[i, 'total_value']:,.2f}, "
-                  f"Cash: ${portfolio.loc[i, 'cash']:,.2f}, BTC: {portfolio.loc[i, 'btc']:.4f}")
+            print(f"Day {i}: Portfolio Value: ${portfolio.loc[i, 'total_value']:.2f}, "
+                  f"Cash: ${portfolio.loc[i, 'cash']:.2f}, "
+                  f"BTC: {portfolio.loc[i, 'btc']:.4f}")
 
     return portfolio
 
 
-def main(days=60, initial_cash=10000, initial_price=50000, volatility=0.02, quiet=False, no_color=False):
-    if no_color:
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Bitcoin Trading Simulation')
+    parser.add_argument('--days', type=int, default=60, help='Number of days to simulate')
+    parser.add_argument('--initial-cash', type=float, default=10000, help='Initial cash in USD')
+    parser.add_argument('--initial-price', type=float, default=50000, help='Initial Bitcoin price in USD')
+    parser.add_argument('--volatility', type=float, default=0.02, help='Volatility of price simulation')
+    parser.add_argument('--quiet', action='store_true', help='Suppress daily portfolio value output')
+    parser.add_argument('--no-color', action='store_true', help='Disable colored output')
+
+    args = parser.parse_args()
+
+    if args.no_color:
         Colors.disable()
 
     # Simulate prices
-    prices = simulate_bitcoin_prices(days=days, initial_price=initial_price, volatility=volatility)
+    prices = simulate_bitcoin_prices(days=args.days, initial_price=args.initial_price, volatility=args.volatility)
 
     # Calculate moving averages
     signals = calculate_moving_averages(prices)
@@ -122,10 +135,11 @@ def main(days=60, initial_cash=10000, initial_price=50000, volatility=0.02, quie
     signals = generate_trading_signals(signals)
 
     # Simulate trading
-    portfolio = simulate_trading(signals, initial_cash=initial_cash, quiet=quiet)
+    portfolio = simulate_trading(signals, initial_cash=args.initial_cash, quiet=args.quiet)
 
     # Final portfolio performance
     final_value = portfolio['total_value'].iloc[-1]
+    initial_cash = args.initial_cash
     profit = final_value - initial_cash
 
     # Compare with buy and hold strategy
