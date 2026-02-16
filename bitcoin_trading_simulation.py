@@ -1,25 +1,7 @@
 import argparse
+import sys
 import numpy as np
 import pandas as pd
-import argparse
-
-
-class Colors:
-    HEADER = '\033[95m'
-    BLUE = '\033[94m'
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-
-    @classmethod
-    def disable(cls):
-        cls.HEADER = ''
-        cls.BLUE = ''
-        cls.GREEN = ''
-        cls.RED = ''
-        cls.ENDC = ''
-        cls.BOLD = ''
 
 
 class Colors:
@@ -27,11 +9,27 @@ class Colors:
     BLUE = '\033[94m'
     CYAN = '\033[96m'
     GREEN = '\033[92m'
-    WARNING = '\033[93m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
     FAIL = '\033[91m'
+    WARNING = '\033[93m'
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+
+    @classmethod
+    def disable(cls):
+        cls.HEADER = ''
+        cls.BLUE = ''
+        cls.CYAN = ''
+        cls.GREEN = ''
+        cls.YELLOW = ''
+        cls.RED = ''
+        cls.FAIL = ''
+        cls.WARNING = ''
+        cls.ENDC = ''
+        cls.BOLD = ''
+        cls.UNDERLINE = ''
 
 def simulate_bitcoin_prices(days=60, initial_price=50000, volatility=0.02):
     """
@@ -89,7 +87,6 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
     if not quiet:
         print(f"{Colors.HEADER}{Colors.BOLD}------ Daily Trading Ledger ------{Colors.ENDC}")
 
-    print(f"\n{Colors.HEADER}{Colors.BOLD}------ Daily Trading Ledger ------{Colors.ENDC}")
     for i, row in signals.iterrows():
         if i > 0:
             portfolio.loc[i, 'cash'] = portfolio.loc[i-1, 'cash']
@@ -121,17 +118,31 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Bitcoin Trading Simulation")
-    parser.add_argument("--days", type=int, default=60, help="Number of days to simulate")
-    parser.add_argument("--initial-cash", type=float, default=10000, help="Initial cash amount")
-    parser.add_argument("--initial-price", type=float, default=50000, help="Initial Bitcoin price")
-    parser.add_argument("--volatility", type=float, default=0.02, help="Price volatility")
-    parser.add_argument("--quiet", action="store_true", help="Suppress daily portfolio log")
+    parser.add_argument("--days", "-d", type=int, default=60, help="Number of days to simulate")
+    parser.add_argument("--initial-cash", "-c", type=float, default=10000, help="Initial cash amount")
+    parser.add_argument("--initial-price", "-p", type=float, default=50000, help="Initial Bitcoin price")
+    parser.add_argument("--volatility", "-v", type=float, default=0.02, help="Price volatility")
+    parser.add_argument("--quiet", "-q", action="store_true", help="Suppress daily portfolio log")
     parser.add_argument("--no-color", action="store_true", help="Disable colored output")
 
     args = parser.parse_args()
 
     if args.no_color:
         Colors.disable()
+
+    # Input validation
+    if args.days <= 0:
+        print(f"{Colors.FAIL}Error: --days must be a positive integer.{Colors.ENDC}")
+        sys.exit(1)
+    if args.initial_cash < 0:
+        print(f"{Colors.FAIL}Error: --initial-cash must be non-negative.{Colors.ENDC}")
+        sys.exit(1)
+    if args.initial_price <= 0:
+        print(f"{Colors.FAIL}Error: --initial-price must be positive.{Colors.ENDC}")
+        sys.exit(1)
+    if args.volatility < 0:
+        print(f"{Colors.FAIL}Error: --volatility must be non-negative.{Colors.ENDC}")
+        sys.exit(1)
 
     # Simulate prices
     prices = simulate_bitcoin_prices(days=args.days, initial_price=args.initial_price, volatility=args.volatility)
