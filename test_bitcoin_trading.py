@@ -16,6 +16,7 @@ def reset_colors():
         'RED': Colors.RED,
         'ENDC': Colors.ENDC,
         'BOLD': Colors.BOLD,
+        'FAIL': Colors.FAIL,
     }
     yield
     # Restore colors
@@ -25,6 +26,7 @@ def reset_colors():
     Colors.RED = original_colors['RED']
     Colors.ENDC = original_colors['ENDC']
     Colors.BOLD = original_colors['BOLD']
+    Colors.FAIL = original_colors['FAIL']
 
 
 def test_simulate_trading_quiet_mode(capsys):
@@ -59,6 +61,7 @@ def test_colors_disable(reset_colors):
     assert Colors.HEADER == ""
     assert Colors.GREEN == ""
     assert Colors.RED == ""
+    assert Colors.FAIL == ""
 
 
 def test_simulation_integration():
