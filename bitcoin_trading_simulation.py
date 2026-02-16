@@ -106,7 +106,10 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
                 cash_received = portfolio.loc[i, 'btc'] * row['price']
                 portfolio.loc[i, 'cash'] += cash_received
                 if not quiet:
-                    print(f"{Colors.FAIL}🔴 Day {i}: Sell {portfolio.loc[i, 'btc']:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
+                    msg = (f"{Colors.FAIL}🔴 Day {i}: Sell "
+                           f"{portfolio.loc[i, 'btc']:.4f} BTC at "
+                           f"${row['price']:.2f}{Colors.ENDC}")
+                    print(msg)
                 portfolio.loc[i, 'btc'] = 0
 
         portfolio.loc[i, 'total_value'] = portfolio.loc[i, 'cash'] + portfolio.loc[i, 'btc'] * row['price']
