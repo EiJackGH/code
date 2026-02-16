@@ -1,7 +1,9 @@
-import pytest
 import pandas as pd
 import numpy as np
-from bitcoin_trading_simulation import simulate_bitcoin_prices, calculate_moving_averages, generate_trading_signals
+from bitcoin_trading_simulation import (
+    simulate_bitcoin_prices, calculate_moving_averages, generate_trading_signals
+)
+
 
 def test_simulate_bitcoin_prices():
     days = 10
@@ -10,12 +12,14 @@ def test_simulate_bitcoin_prices():
     assert isinstance(prices, pd.Series)
     assert prices.name == 'Price'
 
+
 def test_calculate_moving_averages():
     prices = pd.Series([100, 101, 102, 103, 104, 105, 106, 107, 108, 109], name='Price')
     signals = calculate_moving_averages(prices, short_window=3, long_window=5)
     assert 'short_mavg' in signals.columns
     assert 'long_mavg' in signals.columns
     assert not signals['short_mavg'].isnull().all()
+
 
 def test_generate_trading_signals():
     # Create dummy signals DataFrame
