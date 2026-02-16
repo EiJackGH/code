@@ -1,6 +1,8 @@
+import argparse
 import numpy as np
 import pandas as pd
 import argparse
+
 
 
 class Colors:
@@ -74,7 +76,9 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
     portfolio['btc'] = 0.0
     portfolio['total_value'] = float(initial_cash)
 
-    print(f"{Colors.HEADER}{Colors.BOLD}------ Daily Trading Ledger ------{Colors.ENDC}")
+    if not quiet:
+        print(f"{Colors.HEADER}{Colors.BOLD}------ Daily Trading Ledger ------{Colors.ENDC}")
+
     for i, row in signals.iterrows():
         if i > 0:
             portfolio.loc[i, 'cash'] = portfolio.loc[i-1, 'cash']
@@ -85,14 +89,16 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
             btc_to_buy = portfolio.loc[i, 'cash'] / row['price']
             portfolio.loc[i, 'btc'] += btc_to_buy
             portfolio.loc[i, 'cash'] -= btc_to_buy * row['price']
-            print(f"{Colors.GREEN}Day {i}: 💰 Buy {btc_to_buy:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
+            if not quiet:
+                print(f"{Colors.GREEN}Day {i:<3}: 💰 Buy {btc_to_buy:.4f} BTC at ${row['price']:,.2f}{Colors.ENDC}")
 
         # Sell signal
         elif row['positions'] == -2.0:
             if portfolio.loc[i, 'btc'] > 0:
                 cash_received = portfolio.loc[i, 'btc'] * row['price']
                 portfolio.loc[i, 'cash'] += cash_received
-                print(f"{Colors.RED}Day {i}: 📉 Sell {portfolio.loc[i, 'btc']:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
+                if not quiet:
+                    print(f"{Colors.RED}Day {i:<3}: 📉 Sell {portfolio.loc[i, 'btc']:.4f} BTC at ${row['price']:,.2f}{Colors.ENDC}")
                 portfolio.loc[i, 'btc'] = 0
 
         portfolio.loc[i, 'total_value'] = portfolio.loc[i, 'cash'] + portfolio.loc[i, 'btc'] * row['price']
@@ -141,13 +147,34 @@ if __name__ == "__main__":
     buy_and_hold_value = buy_and_hold_btc * prices.iloc[-1]
 
     print(f"\n{Colors.HEADER}{Colors.BOLD}------ Final Portfolio Performance ------{Colors.ENDC}")
-    print(f"Initial Cash: ${initial_cash:.2f}")
-    print(f"Final Portfolio Value: ${final_value:.2f}")
+    print(f"Initial Cash:                ${initial_cash:,.2f}")
+    print(f"Final Portfolio Value:       ${final_value:,.2f}")
 
     if profit >= 0:
-        print(f"Profit/Loss: {Colors.GREEN}📈 ${profit:.2f}{Colors.ENDC}")
+        print(f"Profit/Loss:                 {Colors.GREEN}📈 ${profit:,.2f}{Colors.ENDC}")
     else:
-        print(f"Profit/Loss: {Colors.RED}📉 ${profit:.2f}{Colors.ENDC}")
+        print(f"Profit/Loss:                 {Colors.RED}📉 ${profit:,.2f}{Colors.ENDC}")
 
-    print(f"Buy and Hold Strategy Value: ${buy_and_hold_value:.2f}")
+    print(f"Buy and Hold Strategy Value:  ${buy_and_hold_value:,.2f}")
     print(f"{Colors.HEADER}-----------------------------------------{Colors.ENDC}")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Bitcoin Trading Simulation")
+    parser.add_argument("--days", type=int, default=60, help="Number of days to simulate")
+    parser.add_argument("--initial-cash", type=float, default=10000, help="Initial cash amount")
+    parser.add_argument("--initial-price", type=float, default=50000, help="Initial Bitcoin price")
+    parser.add_argument("--volatility", type=float, default=0.02, help="Price volatility")
+    parser.add_argument("--quiet", action="store_true", help="Suppress daily portfolio log")
+    parser.add_argument("--no-color", action="store_true", help="Disable colored output")
+
+    args = parser.parse_args()
+
+    main(
+        days=args.days,
+        initial_cash=args.initial_cash,
+        initial_price=args.initial_price,
+        volatility=args.volatility,
+        quiet=args.quiet,
+        no_color=args.no_color
+    )
