@@ -22,6 +22,17 @@ class Colors:
         cls.BOLD = ''
 
 
+class Colors:
+    HEADER = '\033[95m'
+    BLUE = '\033[94m'
+    CYAN = '\033[96m'
+    GREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 def simulate_bitcoin_prices(days=60, initial_price=50000, volatility=0.02):
     """
     Simulates Bitcoin prices for a given number of days using Geometric Brownian Motion.
@@ -78,6 +89,7 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
     if not quiet:
         print(f"{Colors.HEADER}{Colors.BOLD}------ Daily Trading Ledger ------{Colors.ENDC}")
 
+    print(f"\n{Colors.HEADER}{Colors.BOLD}------ Daily Trading Ledger ------{Colors.ENDC}")
     for i, row in signals.iterrows():
         if i > 0:
             portfolio.loc[i, 'cash'] = portfolio.loc[i-1, 'cash']
@@ -88,16 +100,14 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
             btc_to_buy = portfolio.loc[i, 'cash'] / row['price']
             portfolio.loc[i, 'btc'] += btc_to_buy
             portfolio.loc[i, 'cash'] -= btc_to_buy * row['price']
-            if not quiet:
-                print(f"{Colors.GREEN}Day {i}: 💰 Buy {btc_to_buy:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
+            print(f"{Colors.GREEN}🟢 Day {i}: Buy {btc_to_buy:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
 
         # Sell signal
         elif row['positions'] == -2.0:
             if portfolio.loc[i, 'btc'] > 0:
                 cash_received = portfolio.loc[i, 'btc'] * row['price']
                 portfolio.loc[i, 'cash'] += cash_received
-                if not quiet:
-                    print(f"{Colors.RED}Day {i}: 📉 Sell {portfolio.loc[i, 'btc']:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
+                print(f"{Colors.FAIL}🔴 Day {i}: Sell {portfolio.loc[i, 'btc']:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
                 portfolio.loc[i, 'btc'] = 0
 
         portfolio.loc[i, 'total_value'] = portfolio.loc[i, 'cash'] + portfolio.loc[i, 'btc'] * row['price']
@@ -143,35 +153,13 @@ if __name__ == "__main__":
     # Compare with buy and hold strategy
     buy_and_hold_btc = args.initial_cash / prices.iloc[0]
     buy_and_hold_value = buy_and_hold_btc * prices.iloc[-1]
-
+    
     print(f"\n{Colors.HEADER}{Colors.BOLD}------ Final Portfolio Performance ------{Colors.ENDC}")
-    print(f"Initial Cash: ${args.initial_cash:.2f}")
+    print(f"Initial Cash: ${initial_cash:.2f}")
     print(f"Final Portfolio Value: ${final_value:.2f}")
-
     if profit >= 0:
-        print(f"Profit/Loss: {Colors.GREEN}📈 ${profit:.2f}{Colors.ENDC}")
+        print(f"{Colors.GREEN}💰 Profit/Loss: ${profit:.2f}{Colors.ENDC}")
     else:
-        print(f"Profit/Loss: {Colors.RED}📉 ${profit:.2f}{Colors.ENDC}")
-
+        print(f"{Colors.FAIL}📉 Profit/Loss: ${profit:.2f}{Colors.ENDC}")
     print(f"Buy and Hold Strategy Value: ${buy_and_hold_value:.2f}")
     print(f"{Colors.HEADER}-----------------------------------------{Colors.ENDC}")
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Bitcoin Trading Simulation')
-    parser.add_argument('--days', type=int, default=60, help='Number of days to simulate')
-    parser.add_argument('--initial-cash', type=float, default=10000, help='Initial cash amount')
-    parser.add_argument('--initial-price', type=float, default=50000, help='Initial Bitcoin price')
-    parser.add_argument('--volatility', type=float, default=0.02, help='Volatility factor')
-    parser.add_argument('--quiet', action='store_true', help='Suppress daily output')
-    parser.add_argument('--no-color', action='store_true', help='Disable colored output')
-
-    args = parser.parse_args()
-
-    main(
-        days=args.days,
-        initial_price=args.initial_price,
-        volatility=args.volatility,
-        initial_cash=args.initial_cash,
-        quiet=args.quiet,
-        no_color=args.no_color
-    )
