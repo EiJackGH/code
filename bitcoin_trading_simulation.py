@@ -171,7 +171,7 @@ if __name__ == "__main__":
     # Compare with buy and hold strategy
     buy_and_hold_btc = args.initial_cash / prices.iloc[0]
     buy_and_hold_value = buy_and_hold_btc * prices.iloc[-1]
-    
+
     print(f"\n{Colors.HEADER}╔════════════════════════════════════════╗{Colors.ENDC}")
     print(f"{Colors.HEADER}║      Final Portfolio Performance       ║{Colors.ENDC}")
     print(f"{Colors.HEADER}╚════════════════════════════════════════╝{Colors.ENDC}")
