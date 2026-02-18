@@ -1,25 +1,7 @@
 import argparse
 import numpy as np
 import pandas as pd
-import argparse
-
-
-class Colors:
-    HEADER = '\033[95m'
-    BLUE = '\033[94m'
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-
-    @classmethod
-    def disable(cls):
-        cls.HEADER = ''
-        cls.BLUE = ''
-        cls.GREEN = ''
-        cls.RED = ''
-        cls.ENDC = ''
-        cls.BOLD = ''
+import sys
 
 
 class Colors:
@@ -29,9 +11,24 @@ class Colors:
     GREEN = '\033[92m'
     WARNING = '\033[93m'
     FAIL = '\033[91m'
+    RED = '\033[91m'  # Alias for FAIL/RED compatibility
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+
+    @classmethod
+    def disable(cls):
+        cls.HEADER = ''
+        cls.BLUE = ''
+        cls.CYAN = ''
+        cls.GREEN = ''
+        cls.WARNING = ''
+        cls.FAIL = ''
+        cls.RED = ''
+        cls.ENDC = ''
+        cls.BOLD = ''
+        cls.UNDERLINE = ''
+
 
 def simulate_bitcoin_prices(days=60, initial_price=50000, volatility=0.02):
     """
@@ -87,9 +84,8 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
     portfolio['total_value'] = float(initial_cash)
 
     if not quiet:
-        print(f"{Colors.HEADER}{Colors.BOLD}------ Daily Trading Ledger ------{Colors.ENDC}")
+        print(f"\n{Colors.HEADER}{Colors.BOLD}------ Daily Trading Ledger ------{Colors.ENDC}")
 
-    print(f"\n{Colors.HEADER}{Colors.BOLD}------ Daily Trading Ledger ------{Colors.ENDC}")
     for i, row in signals.iterrows():
         if i > 0:
             portfolio.loc[i, 'cash'] = portfolio.loc[i-1, 'cash']
@@ -133,6 +129,20 @@ if __name__ == "__main__":
     if args.no_color:
         Colors.disable()
 
+    # Input Validation
+    if args.days <= 0:
+        print(f"{Colors.FAIL}Error: Days must be a positive integer.{Colors.ENDC}")
+        sys.exit(1)
+    if args.initial_cash <= 0:
+        print(f"{Colors.FAIL}Error: Initial cash must be positive.{Colors.ENDC}")
+        sys.exit(1)
+    if args.initial_price <= 0:
+        print(f"{Colors.FAIL}Error: Initial price must be positive.{Colors.ENDC}")
+        sys.exit(1)
+    if args.volatility < 0:
+        print(f"{Colors.FAIL}Error: Volatility cannot be negative.{Colors.ENDC}")
+        sys.exit(1)
+
     # Simulate prices
     prices = simulate_bitcoin_prices(days=args.days, initial_price=args.initial_price, volatility=args.volatility)
 
@@ -149,17 +159,30 @@ if __name__ == "__main__":
     final_value = portfolio['total_value'].iloc[-1]
     initial_cash = args.initial_cash
     profit = final_value - initial_cash
+    roi = (profit / initial_cash) * 100
+
+    # Trade Statistics
+    # Calculate total trades by tracking changes in BTC holdings.
+    btc_diff = portfolio['btc'].diff().fillna(0)
+    buys = len(btc_diff[btc_diff > 0])
+    sells = len(btc_diff[btc_diff < 0])
+    total_trades = buys + sells
 
     # Compare with buy and hold strategy
     buy_and_hold_btc = args.initial_cash / prices.iloc[0]
     buy_and_hold_value = buy_and_hold_btc * prices.iloc[-1]
     
-    print(f"\n{Colors.HEADER}{Colors.BOLD}------ Final Portfolio Performance ------{Colors.ENDC}")
-    print(f"Initial Cash: ${initial_cash:.2f}")
-    print(f"Final Portfolio Value: ${final_value:.2f}")
+    print(f"\n{Colors.HEADER}╔════════════════════════════════════════╗{Colors.ENDC}")
+    print(f"{Colors.HEADER}║      Final Portfolio Performance       ║{Colors.ENDC}")
+    print(f"{Colors.HEADER}╚════════════════════════════════════════╝{Colors.ENDC}")
+    print(f"Initial Cash:            ${initial_cash:,.2f}")
+    print(f"Final Portfolio Value:   ${final_value:,.2f}")
     if profit >= 0:
-        print(f"{Colors.GREEN}💰 Profit/Loss: ${profit:.2f}{Colors.ENDC}")
+        print(f"{Colors.GREEN}💰 Profit/Loss:          ${profit:,.2f} ({roi:+.2f}%){Colors.ENDC}")
     else:
-        print(f"{Colors.FAIL}📉 Profit/Loss: ${profit:.2f}{Colors.ENDC}")
-    print(f"Buy and Hold Strategy Value: ${buy_and_hold_value:.2f}")
-    print(f"{Colors.HEADER}-----------------------------------------{Colors.ENDC}")
+        print(f"{Colors.FAIL}📉 Profit/Loss:          ${profit:,.2f} ({roi:+.2f}%){Colors.ENDC}")
+
+    print(f"{Colors.CYAN}------------------------------------------{Colors.ENDC}")
+    print(f"Total Trades:            {total_trades} (Buys: {buys}, Sells: {sells})")
+    print(f"Buy and Hold Value:      ${buy_and_hold_value:,.2f}")
+    print(f"{Colors.CYAN}------------------------------------------{Colors.ENDC}")
