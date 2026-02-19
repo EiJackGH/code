@@ -1,7 +1,6 @@
 import argparse
 import numpy as np
 import pandas as pd
-import argparse
 
 
 class Colors:
@@ -28,6 +27,7 @@ class Colors:
         cls.ENDC = ''
         cls.BOLD = ''
         cls.UNDERLINE = ''
+
 
 def simulate_bitcoin_prices(days=60, initial_price=50000, volatility=0.02):
     """
@@ -96,7 +96,8 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
             portfolio.loc[i, 'btc'] += btc_to_buy
             portfolio.loc[i, 'cash'] -= btc_to_buy * row['price']
             if not quiet:
-                print(f"{Colors.GREEN}🟢 Day {i}: Buy {btc_to_buy:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
+                print(f"{Colors.GREEN}🟢 Day {i}: Buy {btc_to_buy:.4f} BTC at "
+                      f"${row['price']:.2f}{Colors.ENDC}")
 
         # Sell signal
         elif row['positions'] == -2.0:
@@ -104,7 +105,8 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
                 cash_received = portfolio.loc[i, 'btc'] * row['price']
                 portfolio.loc[i, 'cash'] += cash_received
                 if not quiet:
-                    print(f"{Colors.FAIL}🔴 Day {i}: Sell {portfolio.loc[i, 'btc']:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
+                    print(f"{Colors.FAIL}🔴 Day {i}: Sell {portfolio.loc[i, 'btc']:.4f} BTC at "
+                          f"${row['price']:.2f}{Colors.ENDC}")
                 portfolio.loc[i, 'btc'] = 0
 
         portfolio.loc[i, 'total_value'] = portfolio.loc[i, 'cash'] + portfolio.loc[i, 'btc'] * row['price']
@@ -156,21 +158,29 @@ if __name__ == "__main__":
     # Compare with buy and hold strategy
     buy_and_hold_btc = args.initial_cash / prices.iloc[0]
     buy_and_hold_value = buy_and_hold_btc * prices.iloc[-1]
-    
+
     print(f"\n{Colors.HEADER}{Colors.BOLD}╔══════════════════════════════════════════╗{Colors.ENDC}")
     print(f"{Colors.HEADER}{Colors.BOLD}║       Final Portfolio Performance        ║{Colors.ENDC}")
     print(f"{Colors.HEADER}{Colors.BOLD}╠══════════════════════════════════════════╣{Colors.ENDC}")
-    print(f"{Colors.HEADER}║{Colors.ENDC} {'Initial Cash:':<25} ${initial_cash:>14,.2f} {Colors.HEADER}║{Colors.ENDC}")
-    print(f"{Colors.HEADER}║{Colors.ENDC} {'Final Value:':<25} ${final_value:>14,.2f} {Colors.HEADER}║{Colors.ENDC}")
+    print(f"{Colors.HEADER}║{Colors.ENDC} {'Initial Cash:':<25} ${initial_cash:>14,.2f} "
+          f"{Colors.HEADER}║{Colors.ENDC}")
+    print(f"{Colors.HEADER}║{Colors.ENDC} {'Final Value:':<25} ${final_value:>14,.2f} "
+          f"{Colors.HEADER}║{Colors.ENDC}")
 
     if profit >= 0:
-        print(f"{Colors.HEADER}║{Colors.ENDC} {Colors.GREEN}💰 Profit/Loss:          ${profit:>14,.2f}{Colors.ENDC} {Colors.HEADER}║{Colors.ENDC}")
-        print(f"{Colors.HEADER}║{Colors.ENDC} {Colors.GREEN}   ROI:                  {roi:>14.2f}%{Colors.ENDC} {Colors.HEADER}║{Colors.ENDC}")
+        print(f"{Colors.HEADER}║{Colors.ENDC} {Colors.GREEN}💰 Profit/Loss:          "
+              f"${profit:>14,.2f}{Colors.ENDC} {Colors.HEADER}║{Colors.ENDC}")
+        print(f"{Colors.HEADER}║{Colors.ENDC} {Colors.GREEN}   ROI:                  "
+              f"{roi:>14.2f}%{Colors.ENDC} {Colors.HEADER}║{Colors.ENDC}")
     else:
-        print(f"{Colors.HEADER}║{Colors.ENDC} {Colors.FAIL}📉 Profit/Loss:          ${profit:>14,.2f}{Colors.ENDC} {Colors.HEADER}║{Colors.ENDC}")
-        print(f"{Colors.HEADER}║{Colors.ENDC} {Colors.FAIL}   ROI:                  {roi:>14.2f}%{Colors.ENDC} {Colors.HEADER}║{Colors.ENDC}")
+        print(f"{Colors.HEADER}║{Colors.ENDC} {Colors.FAIL}📉 Profit/Loss:          "
+              f"${profit:>14,.2f}{Colors.ENDC} {Colors.HEADER}║{Colors.ENDC}")
+        print(f"{Colors.HEADER}║{Colors.ENDC} {Colors.FAIL}   ROI:                  "
+              f"{roi:>14.2f}%{Colors.ENDC} {Colors.HEADER}║{Colors.ENDC}")
 
     print(f"{Colors.HEADER}╠══════════════════════════════════════════╣{Colors.ENDC}")
-    print(f"{Colors.HEADER}║{Colors.ENDC} {'Trades (B/S):':<25} {f'{buys}/{sells}':>15} {Colors.HEADER}║{Colors.ENDC}")
-    print(f"{Colors.HEADER}║{Colors.ENDC} {'Buy & Hold:':<25} ${buy_and_hold_value:>14,.2f} {Colors.HEADER}║{Colors.ENDC}")
+    print(f"{Colors.HEADER}║{Colors.ENDC} {'Trades (B/S):':<25} {f'{buys}/{sells}':>15} "
+          f"{Colors.HEADER}║{Colors.ENDC}")
+    print(f"{Colors.HEADER}║{Colors.ENDC} {'Buy & Hold:':<25} ${buy_and_hold_value:>14,.2f} "
+          f"{Colors.HEADER}║{Colors.ENDC}")
     print(f"{Colors.HEADER}{Colors.BOLD}╚══════════════════════════════════════════╝{Colors.ENDC}")
