@@ -1,7 +1,6 @@
 import argparse
 import numpy as np
 import pandas as pd
-import argparse
 
 
 class Colors:
@@ -26,6 +25,7 @@ class Colors:
         cls.ENDC = ''
         cls.BOLD = ''
         cls.UNDERLINE = ''
+
 
 def simulate_bitcoin_prices(days=60, initial_price=50000, volatility=0.02):
     """
@@ -145,7 +145,7 @@ if __name__ == "__main__":
     # Compare with buy and hold strategy
     buy_and_hold_btc = args.initial_cash / prices.iloc[0]
     buy_and_hold_value = buy_and_hold_btc * prices.iloc[-1]
-    
+
     # Calculate additional statistics
     roi = (profit / initial_cash) * 100
     trade_count_buys = int(portfolio['btc'].diff().fillna(0).gt(0).sum())
@@ -163,7 +163,9 @@ if __name__ == "__main__":
     print(f"{Colors.HEADER}{Colors.BOLD}╠{border}╣{Colors.ENDC}")
 
     def print_line(label, value_str, color=Colors.ENDC):
-        print(f"{Colors.HEADER}{Colors.BOLD}║{Colors.ENDC} {label:<24}{color}{value_str:>18}{Colors.ENDC} {Colors.HEADER}{Colors.BOLD}║{Colors.ENDC}")
+        left_border = f"{Colors.HEADER}{Colors.BOLD}║{Colors.ENDC}"
+        right_border = f"{Colors.HEADER}{Colors.BOLD}║{Colors.ENDC}"
+        print(f"{left_border} {label:<24}{color}{value_str:>18}{Colors.ENDC} {right_border}")
 
     print_line("Initial Cash:", f"${initial_cash:,.2f}")
     print_line("Final Portfolio Value:", f"${final_value:,.2f}")
