@@ -13,7 +13,7 @@ def reset_colors():
         'HEADER': Colors.HEADER,
         'BLUE': Colors.BLUE,
         'GREEN': Colors.GREEN,
-        'RED': Colors.RED,
+        'FAIL': Colors.FAIL,
         'ENDC': Colors.ENDC,
         'BOLD': Colors.BOLD,
     }
@@ -22,7 +22,7 @@ def reset_colors():
     Colors.HEADER = original_colors['HEADER']
     Colors.BLUE = original_colors['BLUE']
     Colors.GREEN = original_colors['GREEN']
-    Colors.RED = original_colors['RED']
+    Colors.FAIL = original_colors['FAIL']
     Colors.ENDC = original_colors['ENDC']
     Colors.BOLD = original_colors['BOLD']
 
@@ -58,7 +58,7 @@ def test_colors_disable(reset_colors):
     Colors.disable()
     assert Colors.HEADER == ""
     assert Colors.GREEN == ""
-    assert Colors.RED == ""
+    assert Colors.FAIL == ""
 
 
 def test_simulation_integration():
