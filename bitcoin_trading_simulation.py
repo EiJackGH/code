@@ -1,4 +1,5 @@
 import argparse
+import sys
 import numpy as np
 import pandas as pd
 
@@ -25,6 +26,24 @@ class Colors:
         cls.ENDC = ''
         cls.BOLD = ''
         cls.UNDERLINE = ''
+
+
+def validate_inputs(args):
+    """
+    Validates CLI arguments.
+    """
+    if args.days <= 0:
+        print(f"{Colors.FAIL}Error: --days must be a positive integer.{Colors.ENDC}")
+        sys.exit(1)
+    if args.initial_cash <= 0:
+        print(f"{Colors.FAIL}Error: --initial-cash must be positive.{Colors.ENDC}")
+        sys.exit(1)
+    if args.initial_price <= 0:
+        print(f"{Colors.FAIL}Error: --initial-price must be positive.{Colors.ENDC}")
+        sys.exit(1)
+    if args.volatility < 0:
+        print(f"{Colors.FAIL}Error: --volatility must be non-negative.{Colors.ENDC}")
+        sys.exit(1)
 
 
 def simulate_bitcoin_prices(days=60, initial_price=50000, volatility=0.02):
@@ -70,7 +89,7 @@ def generate_trading_signals(signals):
     return signals
 
 
-def simulate_trading(signals, initial_cash=10000, quiet=False):
+def simulate_trading(signals, initial_cash=10000, quiet=False, show_progress=False):
     """
     Simulates trading based on signals and prints a daily ledger.
     """
@@ -79,10 +98,20 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
     portfolio['cash'] = float(initial_cash)
     portfolio['btc'] = 0.0
     portfolio['total_value'] = float(initial_cash)
+    total_days = len(signals)
 
     if not quiet:
         print(f"\n{Colors.HEADER}{Colors.BOLD}------ Daily Trading Ledger ------{Colors.ENDC}")
+
     for i, row in signals.iterrows():
+        if show_progress and sys.stdout.isatty():
+            progress = (i + 1) / total_days
+            bar_length = 40
+            filled_length = int(bar_length * progress)
+            bar = '█' * filled_length + '-' * (bar_length - filled_length)
+            sys.stdout.write(f'\r{Colors.CYAN}Simulating: [{bar}] {progress:.1%}{Colors.ENDC}')
+            sys.stdout.flush()
+
         if i > 0:
             portfolio.loc[i, 'cash'] = portfolio.loc[i-1, 'cash']
             portfolio.loc[i, 'btc'] = portfolio.loc[i-1, 'btc']
@@ -108,6 +137,9 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
             print(f"Day {i}: Portfolio Value: ${portfolio.loc[i, 'total_value']:.2f}, "
                   f"Cash: ${portfolio.loc[i, 'cash']:.2f}, BTC: {portfolio.loc[i, 'btc']:.4f}")
 
+    if show_progress and sys.stdout.isatty():
+        sys.stdout.write('\n')
+
     return portfolio
 
 
@@ -125,6 +157,8 @@ if __name__ == "__main__":
     if args.no_color:
         Colors.disable()
 
+    validate_inputs(args)
+
     # Simulate prices
     prices = simulate_bitcoin_prices(days=args.days, initial_price=args.initial_price, volatility=args.volatility)
 
@@ -135,7 +169,7 @@ if __name__ == "__main__":
     signals = generate_trading_signals(signals)
 
     # Simulate trading
-    portfolio = simulate_trading(signals, initial_cash=args.initial_cash, quiet=args.quiet)
+    portfolio = simulate_trading(signals, initial_cash=args.initial_cash, quiet=args.quiet, show_progress=args.quiet)
 
     # Final portfolio performance
     final_value = portfolio['total_value'].iloc[-1]
