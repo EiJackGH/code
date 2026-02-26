@@ -72,3 +72,17 @@ def test_simulation_integration():
     assert 'total_value' in portfolio.columns
     assert 'btc' in portfolio.columns
     assert 'cash' in portfolio.columns
+
+
+def test_simulate_trading_quiet_mode_with_trades(capsys):
+    """Test that quiet mode suppresses trade logs too."""
+    signals = pd.DataFrame(index=range(2))
+    signals['price'] = [100.0, 101.0]
+    # Force a buy signal
+    signals['positions'] = [2.0, 0.0]
+
+    simulate_trading(signals, initial_cash=1000, quiet=True)
+
+    captured = capsys.readouterr()
+    assert "Buy" not in captured.out
+    assert "Sell" not in captured.out
