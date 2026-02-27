@@ -1,0 +1,24 @@
+[package]
+name = "eijack-lab-rust"
+version = "0.1.0"
+authors = ["EiJackGH rahmatnaim.48@gmail.com"]
+edition = "2021"
+description = "High-performance experiments for the Code & Commit 2026 initiative."
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# For generating random numbers (like in your NumberGuess game)
+rand = "0.8.5"
+
+# For colorful terminal output (perfect for your "Zen" Easter Egg)
+colored = "2.1.0"
+
+# If you decide to port your Bitcoin test, you'll need this:
+# reqwest = { version = "0.11", features = ["json"] }
+# tokio = { version = "1", features = ["full"] }
+
+[profile.release]
+# This makes your "Lab" code run at maximum speed (Saying YES to optimization!)
+opt-level = 3
+lto = true
