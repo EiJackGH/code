@@ -23,6 +23,8 @@ jobs:
         if [ -z "$(find . -name 'Cargo.toml')" ]; then
           echo "has_rust=false" >> $GITHUB_OUTPUT
           echo "No Cargo.toml found. Rust steps will be skipped."
+          echo "### 🦀 Rust Simulation Skip" >> $GITHUB_STEP_SUMMARY
+          echo "No \`Cargo.toml\` found in the repository. Rust build and test steps were skipped to prevent CI failure (Exit Code 101)." >> $GITHUB_STEP_SUMMARY
         else
           echo "has_rust=true" >> $GITHUB_OUTPUT
         fi
