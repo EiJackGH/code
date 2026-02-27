@@ -20,13 +20,13 @@ jobs:
     - name: Check for Rust projects
       id: check_rust
       run: |
-        if [ -z "$(find . -name 'Cargo.toml')" ]; then
-          echo "has_rust=false" >> $GITHUB_OUTPUT
-          echo "No Cargo.toml found. Rust steps will be skipped."
-          echo "### 🦀 Rust Simulation Skip" >> $GITHUB_STEP_SUMMARY
-          echo "No \`Cargo.toml\` found in the repository. Rust build and test steps were skipped to prevent CI failure (Exit Code 101)." >> $GITHUB_STEP_SUMMARY
-        else
+        if [ -f "Cargo.toml" ] && ([ -f "src/main.rs" ] || [ -f "src/lib.rs" ]); then
           echo "has_rust=true" >> $GITHUB_OUTPUT
+        else
+          echo "has_rust=false" >> $GITHUB_OUTPUT
+          echo "No valid Rust project (Cargo.toml + src/main.rs or src/lib.rs) found. Rust steps will be skipped."
+          echo "### 🦀 Rust Build Skip" >> $GITHUB_STEP_SUMMARY
+          echo "No valid Rust project found in the root directory. Rust build and test steps were skipped to prevent CI failure (Exit Code 101)." >> $GITHUB_STEP_SUMMARY
         fi
 
     - name: Build
