@@ -3,7 +3,6 @@ import time
 import sys
 import numpy as np
 import pandas as pd
-import bitcoin
 
 
 class Colors:
@@ -13,7 +12,6 @@ class Colors:
     GREEN = '\033[92m'
     WARNING = '\033[93m'
     FAIL = '\033[91m'
-    RED = '\033[91m'  # Alias for FAIL
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
@@ -26,10 +24,10 @@ class Colors:
         cls.GREEN = ''
         cls.WARNING = ''
         cls.FAIL = ''
-        cls.RED = ''
         cls.ENDC = ''
         cls.BOLD = ''
         cls.UNDERLINE = ''
+
 
 def simulate_bitcoin_prices(days=60, initial_price=50000, volatility=0.02):
     """
@@ -86,27 +84,24 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
 
     if not quiet:
         print(f"\n{Colors.HEADER}{Colors.BOLD}------ Daily Trading Ledger ------{Colors.ENDC}")
-
     for i, row in signals.iterrows():
         if i > 0:
             portfolio.loc[i, 'cash'] = portfolio.loc[i-1, 'cash']
             portfolio.loc[i, 'btc'] = portfolio.loc[i-1, 'btc']
 
-        # Buy signal (catch both 1.0 for first cross and 2.0 for flip from sell)
-        if row['positions'] in [1.0, 2.0]:
+        # Buy signal
+        if row['positions'] == 2.0:
             btc_to_buy = portfolio.loc[i, 'cash'] / row['price']
             portfolio.loc[i, 'btc'] += btc_to_buy
             portfolio.loc[i, 'cash'] -= btc_to_buy * row['price']
-            if not quiet:
-                print(f"{Colors.GREEN}🟢 Day {i}: Buy {btc_to_buy:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
+            print(f"{Colors.GREEN}🟢 Day {i}: Buy {btc_to_buy:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
 
-        # Sell signal (catch both -1.0 for first cross and -2.0 for flip from buy)
-        elif row['positions'] in [-1.0, -2.0]:
+        # Sell signal
+        elif row['positions'] == -2.0:
             if portfolio.loc[i, 'btc'] > 0:
                 cash_received = portfolio.loc[i, 'btc'] * row['price']
                 portfolio.loc[i, 'cash'] += cash_received
-                if not quiet:
-                    print(f"{Colors.FAIL}🔴 Day {i}: Sell {portfolio.loc[i, 'btc']:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
+                print(f"{Colors.FAIL}🔴 Day {i}: Sell {portfolio.loc[i, 'btc']:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
                 portfolio.loc[i, 'btc'] = 0
 
         portfolio.loc[i, 'total_value'] = portfolio.loc[i, 'cash'] + portfolio.loc[i, 'btc'] * row['price']
@@ -137,7 +132,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Bitcoin Trading Simulation")
     parser.add_argument("--days", type=int, default=60, help="Number of days to simulate")
     parser.add_argument("--initial-cash", type=float, default=10000, help="Initial cash amount")
-    parser.add_argument("--initial-price", type=float, help="Initial Bitcoin price (fetches current price if not specified)")
+    parser.add_argument("--initial-price", type=float, default=50000, help="Initial Bitcoin price")
     parser.add_argument("--volatility", type=float, default=0.02, help="Price volatility")
     parser.add_argument("--quiet", action="store_true", help="Suppress daily portfolio log")
     parser.add_argument("--no-color", action="store_true", help="Disable colored output")
@@ -147,22 +142,8 @@ if __name__ == "__main__":
     if args.no_color:
         Colors.disable()
 
-    # Determine initial price
-    initial_price = args.initial_price
-    if initial_price is None:
-        try:
-            if not args.quiet:
-                print(f"{Colors.BLUE}Fetching current Bitcoin price...{Colors.ENDC}")
-            initial_price = bitcoin.get_bitcoin_price()
-            if not args.quiet:
-                print(f"{Colors.BLUE}Current Bitcoin price: ${initial_price:,.2f}{Colors.ENDC}")
-        except Exception as e:
-            if not args.quiet:
-                print(f"{Colors.WARNING}Warning: Could not fetch current price ({e}). Using default of $50,000.{Colors.ENDC}")
-            initial_price = 50000.0
-
     # Simulate prices
-    prices = simulate_bitcoin_prices(days=args.days, initial_price=initial_price, volatility=args.volatility)
+    prices = simulate_bitcoin_prices(days=args.days, initial_price=args.initial_price, volatility=args.volatility)
 
     # Calculate moving averages
     signals = calculate_moving_averages(prices)

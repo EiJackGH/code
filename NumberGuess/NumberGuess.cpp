@@ -15,7 +15,7 @@ void showEasterEgg() {
 int main() {
     // Seed the randomizer
     srand(static_cast<unsigned int>(time(0)));
-    
+
     int secretNumber = rand() % 100 + 1;
     string input;
     int guess = 0;

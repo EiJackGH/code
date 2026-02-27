@@ -1,8 +1,9 @@
 import requests
 
+
 def get_bitcoin_price():
     """
-    Fetches the current Bitcoin price in USD from the CoinDesk API.
+    Fetches the current Bitcoin price from CoinDesk API.
     """
     url = "https://api.coindesk.com/v1/bpi/currentprice.json"
     try:
@@ -20,4 +21,4 @@ def calculate_value(amount, price):
     """
     Calculates the total value of Bitcoin based on the amount and current price.
     """
-    return amount * price
+    return float(amount) * float(price)
