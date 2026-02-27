@@ -9,14 +9,12 @@ def get_bitcoin_price():
         response = requests.get(url)
         if response.status_code == 200:
             data = response.json()
-            # The API returns price as a float in data['bpi']['USD']['rate_float']
             return data["bpi"]["USD"]["rate_float"]
         else:
-            raise ConnectionError(f"Failed to fetch Bitcoin price. Status code: {response.status_code}")
-    except Exception as e:
-        if isinstance(e, ConnectionError):
-            raise
-        raise ConnectionError(f"An error occurred while fetching Bitcoin price: {e}")
+            raise ConnectionError(f"API returned status code {response.status_code}")
+    except requests.RequestException:
+        raise ConnectionError("Failed to fetch Bitcoin price")
+
 
 def calculate_value(amount, price):
     """
