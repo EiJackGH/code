@@ -16,7 +16,21 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Check for Rust projects
+      id: check_rust
+      run: |
+        if [ -z "$(find . -name 'Cargo.toml')" ]; then
+          echo "has_rust=false" >> $GITHUB_OUTPUT
+          echo "No Cargo.toml found. Rust steps will be skipped."
+        else
+          echo "has_rust=true" >> $GITHUB_OUTPUT
+        fi
+
     - name: Build
+      if: steps.check_rust.outputs.has_rust == 'true'
       run: cargo build --verbose
+
     - name: Run tests
+      if: steps.check_rust.outputs.has_rust == 'true'
       run: cargo test --verbose
