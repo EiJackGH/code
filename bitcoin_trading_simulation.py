@@ -84,6 +84,10 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
 
     if not quiet:
         print(f"\n{Colors.HEADER}{Colors.BOLD}------ Daily Trading Ledger ------{Colors.ENDC}")
+
+    total_signals = len(signals)
+    last_printed_progress = -1
+
     for i, row in signals.iterrows():
         if i > 0:
             portfolio.loc[i, 'cash'] = portfolio.loc[i-1, 'cash']
@@ -112,13 +116,17 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
             print(f"Day {i}: Portfolio Value: ${portfolio.loc[i, 'total_value']:.2f}, "
                   f"Cash: ${portfolio.loc[i, 'cash']:.2f}, BTC: {portfolio.loc[i, 'btc']:.4f}")
         elif sys.stdout.isatty():
-            # calculate progress securely regardless of the index type or range
-            progress = (signals.index.get_loc(i) + 1) / len(signals)
-            bar_length = 40
-            filled_length = int(bar_length * progress)
-            bar = '█' * filled_length + '-' * (bar_length - filled_length)
-            sys.stdout.write(f'\r{Colors.BLUE}Simulating: |{bar}| {progress:.0%} Complete{Colors.ENDC}')
-            sys.stdout.flush()
+            current_idx = signals.index.get_loc(i)
+            # Only update the progress bar at 1% increments to avoid excessive I/O
+            current_progress = int((current_idx + 1) * 100 / total_signals)
+            if current_progress > last_printed_progress or current_idx == total_signals - 1:
+                progress_ratio = (current_idx + 1) / total_signals
+                bar_length = 40
+                filled_length = int(bar_length * progress_ratio)
+                bar = '█' * filled_length + '-' * (bar_length - filled_length)
+                sys.stdout.write(f'\r{Colors.BLUE}Simulating: |{bar}| {progress_ratio:.0%} Complete{Colors.ENDC}')
+                sys.stdout.flush()
+                last_printed_progress = current_progress
 
     if quiet and sys.stdout.isatty():
         print()
