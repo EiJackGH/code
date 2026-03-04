@@ -43,3 +43,12 @@
 # Python
 __pycache__/
 *.pyc
+
+# Rust
+target/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
