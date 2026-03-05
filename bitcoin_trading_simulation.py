@@ -82,9 +82,20 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
     portfolio['btc'] = 0.0
     portfolio['total_value'] = float(initial_cash)
 
+    total_days = len(signals)
+
     if not quiet:
         print(f"\n{Colors.HEADER}{Colors.BOLD}------ Daily Trading Ledger ------{Colors.ENDC}")
-    for i, row in signals.iterrows():
+
+    for idx, (i, row) in enumerate(signals.iterrows()):
+        if quiet and sys.stdout.isatty():
+            progress = (idx + 1) / total_days
+            bar_len = 30
+            filled = int(bar_len * progress)
+            bar = '█' * filled + '-' * (bar_len - filled)
+            sys.stdout.write(f'\r{Colors.CYAN}Simulating: [{bar}] {progress:.0%}{Colors.ENDC}')
+            sys.stdout.flush()
+
         if i > 0:
             portfolio.loc[i, 'cash'] = portfolio.loc[i-1, 'cash']
             portfolio.loc[i, 'btc'] = portfolio.loc[i-1, 'btc']
@@ -94,14 +105,16 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
             btc_to_buy = portfolio.loc[i, 'cash'] / row['price']
             portfolio.loc[i, 'btc'] += btc_to_buy
             portfolio.loc[i, 'cash'] -= btc_to_buy * row['price']
-            print(f"{Colors.GREEN}🟢 Day {i}: Buy {btc_to_buy:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
+            if not quiet:
+                print(f"{Colors.GREEN}🟢 Day {i}: Buy {btc_to_buy:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
 
         # Sell signal
         elif row['positions'] == -2.0:
             if portfolio.loc[i, 'btc'] > 0:
                 cash_received = portfolio.loc[i, 'btc'] * row['price']
                 portfolio.loc[i, 'cash'] += cash_received
-                print(f"{Colors.FAIL}🔴 Day {i}: Sell {portfolio.loc[i, 'btc']:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
+                if not quiet:
+                    print(f"{Colors.FAIL}🔴 Day {i}: Sell {portfolio.loc[i, 'btc']:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
                 portfolio.loc[i, 'btc'] = 0
 
         portfolio.loc[i, 'total_value'] = portfolio.loc[i, 'cash'] + portfolio.loc[i, 'btc'] * row['price']
@@ -109,6 +122,10 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
         if not quiet:
             print(f"Day {i}: Portfolio Value: ${portfolio.loc[i, 'total_value']:.2f}, "
                   f"Cash: ${portfolio.loc[i, 'cash']:.2f}, BTC: {portfolio.loc[i, 'btc']:.4f}")
+
+    if quiet and sys.stdout.isatty():
+        sys.stdout.write('\r' + ' ' * 60 + '\r')
+        sys.stdout.flush()
 
     return portfolio
 
