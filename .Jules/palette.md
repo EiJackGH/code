@@ -5,3 +5,7 @@
 ## 2025-02-28 - Structured CLI Reports
 **Learning:** Dense numerical data in CLI output is hard to parse. Using ASCII box-drawing characters and alignment to create a "dashboard" or "invoice" style summary significantly improves readability and perceived quality.
 **Action:** When summarizing simulation or batch job results, always format the final report as a structured table or box rather than a list of print statements.
+
+## 2026-03-05 - Dynamic CLI Progress in Quiet Mode
+**Learning:** For long-running CLI processes that suppress verbose logging (e.g., `--quiet`), users still need system status visibility. Without it, the application appears frozen.
+**Action:** Implement a dynamic progress bar using `\r` conditional on `sys.stdout.isatty()` to provide system status visibility without polluting standard output logs.
