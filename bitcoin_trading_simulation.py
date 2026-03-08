@@ -84,7 +84,16 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
 
     if not quiet:
         print(f"\n{Colors.HEADER}{Colors.BOLD}------ Daily Trading Ledger ------{Colors.ENDC}")
-    for i, row in signals.iterrows():
+
+    total_days = len(signals)
+    for idx, (i, row) in enumerate(signals.iterrows()):
+        if quiet and sys.stdout.isatty():
+            progress = (idx + 1) / total_days
+            bar_length = 30
+            filled_length = int(bar_length * progress)
+            bar = '█' * filled_length + '-' * (bar_length - filled_length)
+            print(f'\r{Colors.CYAN}Simulation Progress: |{bar}| {progress:.1%} Complete{Colors.ENDC}', end='', flush=True)
+
         if i > 0:
             portfolio.loc[i, 'cash'] = portfolio.loc[i-1, 'cash']
             portfolio.loc[i, 'btc'] = portfolio.loc[i-1, 'btc']
@@ -109,6 +118,9 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
         if not quiet:
             print(f"Day {i}: Portfolio Value: ${portfolio.loc[i, 'total_value']:.2f}, "
                   f"Cash: ${portfolio.loc[i, 'cash']:.2f}, BTC: {portfolio.loc[i, 'btc']:.4f}")
+
+    if quiet and sys.stdout.isatty():
+        print()
 
     return portfolio
 
