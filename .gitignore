@@ -39,4 +39,7 @@
 
 # debug information files
 *.dwo
-simulation_plot.png
+
+# Python
+__pycache__/
+*.pyc

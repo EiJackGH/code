@@ -3,7 +3,6 @@ import time
 import sys
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
 
 class Colors:
@@ -113,31 +112,21 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
 
     return portfolio
 
-def plot_simulation(signals):
+
+def countdown(quiet=False):
     """
-    Plots the simulation results, including price, moving averages, and trading signals.
+    Displays a countdown before the simulation starts.
     """
-    plt.figure(figsize=(14, 7))
-    plt.plot(signals['price'], label='Bitcoin Price')
-    plt.plot(signals['short_mavg'], label='7-Day Moving Average', alpha=0.7)
-    plt.plot(signals['long_mavg'], label='30-Day Moving Average', alpha=0.7)
+    if quiet or not sys.stdout.isatty():
+        return
 
-    # Plot buy signals
-    plt.plot(signals.loc[signals['positions'] == 2.0].index,
-             signals.short_mavg[signals['positions'] == 2.0],
-             '^', markersize=10, color='g', lw=0, label='Buy Signal')
+    print(f"\n{Colors.BLUE}{Colors.BOLD}Simulation starting in...{Colors.ENDC}")
+    print("(", end="", flush=True)
+    for i in range(3, 0, -1):
+        print(f"{Colors.CYAN}{i}.. {Colors.ENDC}", end="", flush=True)
+        time.sleep(1)
+    print(f"{Colors.GREEN}{Colors.BOLD}GO!{Colors.ENDC})\n")
 
-    # Plot sell signals
-    plt.plot(signals.loc[signals['positions'] == -2.0].index,
-             signals.short_mavg[signals['positions'] == -2.0],
-             'v', markersize=10, color='r', lw=0, label='Sell Signal')
-
-    plt.title('Bitcoin Trading Simulation')
-    plt.xlabel('Days')
-    plt.ylabel('Price (USD)')
-    plt.legend()
-    plt.savefig('simulation_plot.png')
-    plt.show()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Bitcoin Trading Simulation")
@@ -176,13 +165,51 @@ if __name__ == "__main__":
     # Compare with buy and hold strategy
     buy_and_hold_btc = args.initial_cash / prices.iloc[0]
     buy_and_hold_value = buy_and_hold_btc * prices.iloc[-1]
-    
-    print("\n------ Final Portfolio Performance ------")
-    print(f"Initial Cash: ${initial_cash:.2f}")
-    print(f"Final Portfolio Value: ${final_value:.2f}")
-    print(f"Profit/Loss: ${profit:.2f}")
-    print(f"Buy and Hold Strategy Value: ${buy_and_hold_value:.2f}")
-    print("-----------------------------------------")
 
-    # Plot the simulation
-    plot_simulation(signals)
+    # Calculate additional statistics
+    roi = (profit / initial_cash) * 100
+    trade_count_buys = int(portfolio['btc'].diff().fillna(0).gt(0).sum())
+    trade_count_sells = int(portfolio['btc'].diff().fillna(0).lt(0).sum())
+    total_trades = trade_count_buys + trade_count_sells
+    vs_buy_hold = final_value - buy_and_hold_value
+
+    # Format the final report
+    width = 44
+    border = "═" * width
+
+    print(f"\n{Colors.HEADER}{Colors.BOLD}╔{border}╗{Colors.ENDC}")
+    title = "Final Portfolio Performance"
+    print(f"{Colors.HEADER}{Colors.BOLD}║{title:^{width}}║{Colors.ENDC}")
+    print(f"{Colors.HEADER}{Colors.BOLD}╠{border}╣{Colors.ENDC}")
+
+    def print_line(label, value_str, color=Colors.ENDC):
+        left_border = f"{Colors.HEADER}{Colors.BOLD}║{Colors.ENDC}"
+        right_border = f"{Colors.HEADER}{Colors.BOLD}║{Colors.ENDC}"
+        print(f"{left_border} {label:<24}{color}{value_str:>18}{Colors.ENDC} {right_border}")
+
+    print_line("Initial Cash:", f"${initial_cash:,.2f}")
+    print_line("Final Portfolio Value:", f"${final_value:,.2f}")
+
+    profit_color = Colors.GREEN if profit >= 0 else Colors.FAIL
+    profit_sign = "+" if profit >= 0 else "-"
+    print_line("Profit/Loss:", f"{profit_sign}${abs(profit):,.2f}", profit_color)
+
+    roi_color = Colors.GREEN if roi >= 0 else Colors.FAIL
+    roi_sign = "+" if roi >= 0 else "-"
+    print_line("ROI:", f"{roi_sign}{abs(roi):.2f}%", roi_color)
+
+    print(f"{Colors.HEADER}{Colors.BOLD}╠{border}╣{Colors.ENDC}")
+
+    print_line("Total Trades:", f"{total_trades}")
+    print_line("  - Buys:", f"{trade_count_buys}")
+    print_line("  - Sells:", f"{trade_count_sells}")
+
+    print(f"{Colors.HEADER}{Colors.BOLD}╠{border}╣{Colors.ENDC}")
+
+    print_line("Buy & Hold Value:", f"${buy_and_hold_value:,.2f}")
+
+    vs_color = Colors.GREEN if vs_buy_hold >= 0 else Colors.FAIL
+    vs_sign = "+" if vs_buy_hold >= 0 else "-"
+    print_line("vs Buy & Hold:", f"{vs_sign}${abs(vs_buy_hold):,.2f}", vs_color)
+
+    print(f"{Colors.HEADER}{Colors.BOLD}╚{border}╝{Colors.ENDC}")
