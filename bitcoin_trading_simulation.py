@@ -1,4 +1,5 @@
 import argparse
+import time
 import sys
 import numpy as np
 import pandas as pd
@@ -112,6 +113,21 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
     return portfolio
 
 
+def countdown(quiet=False):
+    """
+    Displays a countdown before the simulation starts.
+    """
+    if quiet or not sys.stdout.isatty():
+        return
+
+    print(f"\n{Colors.BLUE}{Colors.BOLD}Simulation starting in...{Colors.ENDC}")
+    print("(", end="", flush=True)
+    for i in range(3, 0, -1):
+        print(f"{Colors.CYAN}{i}.. {Colors.ENDC}", end="", flush=True)
+        time.sleep(1)
+    print(f"{Colors.GREEN}{Colors.BOLD}GO!{Colors.ENDC})\n")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Bitcoin Trading Simulation")
     parser.add_argument("--days", type=int, default=60, help="Number of days to simulate")
@@ -126,17 +142,18 @@ if __name__ == "__main__":
     if args.no_color:
         Colors.disable()
 
+    # Input validation
     if args.days <= 0:
-        print(f"{Colors.FAIL}Error: --days must be a positive integer.{Colors.ENDC}")
+        print(f"{Colors.FAIL}Error: Days must be a positive integer.{Colors.ENDC}", file=sys.stderr)
         sys.exit(1)
     if args.initial_cash <= 0:
-        print(f"{Colors.FAIL}Error: --initial-cash must be a positive amount.{Colors.ENDC}")
+        print(f"{Colors.FAIL}Error: Initial cash must be positive.{Colors.ENDC}", file=sys.stderr)
         sys.exit(1)
     if args.initial_price <= 0:
-        print(f"{Colors.FAIL}Error: --initial-price must be a positive amount.{Colors.ENDC}")
+        print(f"{Colors.FAIL}Error: Initial price must be positive.{Colors.ENDC}", file=sys.stderr)
         sys.exit(1)
     if args.volatility < 0:
-        print(f"{Colors.FAIL}Error: --volatility must be non-negative.{Colors.ENDC}")
+        print(f"{Colors.FAIL}Error: Volatility must be non-negative.{Colors.ENDC}", file=sys.stderr)
         sys.exit(1)
 
     # Simulate prices
@@ -147,6 +164,9 @@ if __name__ == "__main__":
 
     # Generate trading signals
     signals = generate_trading_signals(signals)
+
+    # Display countdown
+    countdown(args.quiet)
 
     # Simulate trading
     portfolio = simulate_trading(signals, initial_cash=args.initial_cash, quiet=args.quiet)
