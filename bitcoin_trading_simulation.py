@@ -84,7 +84,17 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
 
     if not quiet:
         print(f"\n{Colors.HEADER}{Colors.BOLD}------ Daily Trading Ledger ------{Colors.ENDC}")
-    for i, row in signals.iterrows():
+
+    total_days = len(signals)
+    show_progress = quiet and sys.stdout.isatty()
+    for idx, (i, row) in enumerate(signals.iterrows()):
+        if show_progress:
+            progress = int(50 * (idx + 1) / total_days)
+            bar = '█' * progress + '-' * (50 - progress)
+            print(f"\r{Colors.CYAN}Simulating: [{bar}] {idx + 1}/{total_days} days{Colors.ENDC}", end="", flush=True)
+            if idx + 1 == total_days:
+                print()
+
         if i > 0:
             portfolio.loc[i, 'cash'] = portfolio.loc[i-1, 'cash']
             portfolio.loc[i, 'btc'] = portfolio.loc[i-1, 'btc']
