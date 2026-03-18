@@ -5,7 +5,7 @@ FROM gcc:latest
 WORKDIR /usr/src/app
 
 # Copy your C++ file into the container
-COPY NumberGuess.cpp .
+COPY NumberGuess/NumberGuess.cpp .
 
 # Compile the code
 RUN g++ -o NumberGuess NumberGuess.cpp

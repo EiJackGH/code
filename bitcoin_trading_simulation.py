@@ -125,6 +125,9 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
     if show_progress:
         print()
 
+    if quiet and sys.stdout.isatty():
+        print()
+
     return portfolio
 
 
