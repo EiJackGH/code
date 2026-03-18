@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mario Mini Game</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: #5c94fc;
+      overflow: hidden;
+      font-family: Arial;
+    }
+
+    #game {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #mario {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background: red;
+      bottom: 50px;
+      left: 100px;
+      border-radius: 10px;
+    }
+
+    .ground {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 50px;
+      background: green;
+    }
+
+    .obstacle {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background: brown;
+      bottom: 50px;
+      right: -40px;
+    }
+
+    #score {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: white;
+      font-size: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="game">
+  <div id="score">Score: 0</div>
+  <div id="mario"></div>
+  <div class="ground"></div>
+</div>
+
+<script>
+  const mario = document.getElementById("mario");
+  const game = document.getElementById("game");
+  const scoreText = document.getElementById("score");
+
+  let jumping = false;
+  let score = 0;
+
+  // Jump function
+  document.addEventListener("keydown", () => {
+    if (jumping) return;
+
+    jumping = true;
+    let position = 50;
+
+    const up = setInterval(() => {
+      if (position >= 150) {
+        clearInterval(up);
+
+        const down = setInterval(() => {
+          if (position <= 50) {
+            clearInterval(down);
+            jumping = false;
+          }
+          position -= 5;
+          mario.style.bottom = position + "px";
+        }, 20);
+      }
+
+      position += 5;
+      mario.style.bottom = position + "px";
+    }, 20);
+  });
+
+  // Create obstacles
+  function createObstacle() {
+    const obstacle = document.createElement("div");
+    obstacle.classList.add("obstacle");
+    game.appendChild(obstacle);
+
+    let position = window.innerWidth;
+
+    const move = setInterval(() => {
+      if (position < -40) {
+        clearInterval(move);
+        obstacle.remove();
+        score++;
+        scoreText.innerText = "Score: " + score;
+      } else {
+        position -= 5;
+        obstacle.style.left = position + "px";
+      }
+
+      // Collision detection
+      const marioBottom = parseInt(window.getComputedStyle(mario).bottom);
+      if (position > 80 && position < 140 && marioBottom < 90) {
+        alert("Game Over! Score: " + score);
+        location.reload();
+      }
+
+    }, 20);
+
+    setTimeout(createObstacle, Math.random() * 2000 + 1000);
+  }
+
+  createObstacle();
+</script>
+
+</body>
+</html>
