@@ -52,13 +52,23 @@
       font-size: 20px;
       font-family: Arial;
     }
+
+    #hint {
+      position: absolute;
+      top: 35px;
+      left: 10px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 14px;
+      font-family: Arial;
+    }
   </style>
 </head>
 
 <body>
 
 <div id="game">
-  <div id="score">Score: 0</div>
+  <div id="score" aria-live="polite">Score: 0</div>
+  <div id="hint">Press Space to jump</div>
   <div id="mario"></div>
   <div class="ground"></div>
 </div>
@@ -72,7 +82,13 @@
   let score = 0;
 
   // Jump mechanic
-  document.addEventListener("keydown", () => {
+  document.addEventListener("keydown", (e) => {
+    if (e.code === "Space" || e.code === "ArrowUp") {
+      e.preventDefault(); // Prevent page scrolling
+    } else {
+      return;
+    }
+
     if (jumping) return;
 
     jumping = true;
