@@ -72,7 +72,15 @@
   let score = 0;
 
   // Jump mechanic
-  document.addEventListener("keydown", () => {
+  document.addEventListener("keydown", (e) => {
+    // Prevent default page scrolling for typical game keys
+    if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.code)) {
+      e.preventDefault();
+    }
+
+    // Only jump on Space or Up Arrow
+    if (e.code !== "Space" && e.code !== "ArrowUp") return;
+
     if (jumping) return;
 
     jumping = true;
