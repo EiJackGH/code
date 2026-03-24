@@ -51,6 +51,19 @@
       color: white;
       font-size: 20px;
       font-family: Arial;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    }
+
+    #controls-hint {
+      position: absolute;
+      top: 40px;
+      left: 10px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 14px;
+      font-family: Arial, sans-serif;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+      pointer-events: none;
     }
   </style>
 </head>
@@ -58,7 +71,8 @@
 <body>
 
 <div id="game">
-  <div id="score">Score: 0</div>
+  <div id="score" aria-live="polite" aria-atomic="true">Score: 0</div>
+  <div id="controls-hint" aria-hidden="true">⌨️ Space or ↑ to jump</div>
   <div id="mario"></div>
   <div class="ground"></div>
 </div>
