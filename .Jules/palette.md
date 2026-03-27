@@ -12,3 +12,7 @@
 ## 2025-03-23 - Game Key Scrolling
 **Learning:** Browsers natively scroll the page when users press Space or Arrow keys. When building a web-based game, this creates a frustrating UX where the game viewport jumps around while playing.
 **Action:** Always call `e.preventDefault()` on keydown events for typical game controls ("Space", "ArrowUp", etc.) when the focus is on a game container or the body.
+
+## 2025-03-23 - Cognitive Load in CLI Financial Outputs
+**Learning:** Large numbers without thousands separators in CLI outputs significantly increase cognitive load and reduce readability for users.
+**Action:** Always use thousands separators (e.g., `:,2f`) when formatting large financial or numerical values in console output to improve accessibility and parsing speed.
