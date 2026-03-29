@@ -12,3 +12,7 @@
 ## 2025-03-23 - Game Key Scrolling
 **Learning:** Browsers natively scroll the page when users press Space or Arrow keys. When building a web-based game, this creates a frustrating UX where the game viewport jumps around while playing.
 **Action:** Always call `e.preventDefault()` on keydown events for typical game controls ("Space", "ArrowUp", etc.) when the focus is on a game container or the body.
+
+## 2025-03-26 - Dynamic Game Status Updates Accessibility
+**Learning:** Dynamic status updates in web UI elements, like scores changing in a game, are completely invisible to screen readers by default. This creates a frustrating and exclusive experience for users relying on assistive technologies, as they miss critical real-time information.
+**Action:** When implementing dynamic status elements (like scores, timers, or life counters) in web-based games or interactive widgets, always include `aria-live="polite"` and `aria-atomic="true"` to ensure screen readers announce these updates appropriately without aggressively interrupting the user.
