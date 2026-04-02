@@ -96,22 +96,22 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
             portfolio.loc[i, 'cash'] = portfolio.loc[i-1, 'cash']
             portfolio.loc[i, 'btc'] = portfolio.loc[i-1, 'btc']
 
-        # Buy signal
-        if row['positions'] == 2.0:
+        # Buy signal: If signal is 1 (Golden Cross) and we don't have BTC
+        if row['signal'] == 1.0 and portfolio.loc[i, 'btc'] == 0:
             btc_to_buy = portfolio.loc[i, 'cash'] / row['price']
-            portfolio.loc[i, 'btc'] += btc_to_buy
-            portfolio.loc[i, 'cash'] -= btc_to_buy * row['price']
-            if not quiet:
-                print(f"{Colors.GREEN}🟢 Day {i}: Buy {btc_to_buy:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
-
-        # Sell signal
-        elif row['positions'] == -2.0:
-            if portfolio.loc[i, 'btc'] > 0:
-                cash_received = portfolio.loc[i, 'btc'] * row['price']
-                portfolio.loc[i, 'cash'] += cash_received
+            if btc_to_buy > 0:
+                portfolio.loc[i, 'btc'] += btc_to_buy
+                portfolio.loc[i, 'cash'] -= btc_to_buy * row['price']
                 if not quiet:
-                    print(f"{Colors.FAIL}🔴 Day {i}: Sell {portfolio.loc[i, 'btc']:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
-                portfolio.loc[i, 'btc'] = 0
+                    print(f"{Colors.GREEN}🟢 Day {i}: Buy {btc_to_buy:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
+
+        # Sell signal: If signal is -1 (Death Cross) and we have BTC
+        elif row['signal'] == -1.0 and portfolio.loc[i, 'btc'] > 0:
+            cash_received = portfolio.loc[i, 'btc'] * row['price']
+            portfolio.loc[i, 'cash'] += cash_received
+            if not quiet:
+                print(f"{Colors.FAIL}🔴 Day {i}: Sell {portfolio.loc[i, 'btc']:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
+            portfolio.loc[i, 'btc'] = 0
 
         portfolio.loc[i, 'total_value'] = portfolio.loc[i, 'cash'] + portfolio.loc[i, 'btc'] * row['price']
 
@@ -148,11 +148,19 @@ if __name__ == "__main__":
     parser.add_argument("--volatility", type=float, default=0.02, help="Price volatility")
     parser.add_argument("--quiet", action="store_true", help="Suppress daily portfolio log")
     parser.add_argument("--no-color", action="store_true", help="Disable colored output")
+    parser.add_argument("--contributors", action="store_true", help="Display the project contributor team")
 
     args = parser.parse_args()
 
     if args.no_color:
         Colors.disable()
+
+    if args.contributors:
+        print(f"\n{Colors.HEADER}{Colors.BOLD}--- Bitcoin Trading Simulation Team ---{Colors.ENDC}")
+        print(f"{Colors.BLUE}- EiJackGH{Colors.ENDC}")
+        print(f"{Colors.BLUE}- aidasofialily-cmd{Colors.ENDC}")
+        print(f"{Colors.BLUE}- Jules (AI Software Engineer){Colors.ENDC}")
+        sys.exit(0)
 
     # Simulate prices
     prices = simulate_bitcoin_prices(days=args.days, initial_price=args.initial_price, volatility=args.volatility)
@@ -225,3 +233,4 @@ if __name__ == "__main__":
     print_line("vs Buy & Hold:", f"{vs_sign}${abs(vs_buy_hold):,.2f}", vs_color)
 
     print(f"{Colors.HEADER}{Colors.BOLD}╚{border}╝{Colors.ENDC}")
+    print(f"\n{Colors.BLUE}🌟 Love this project? Consider starring the repository on GitHub!{Colors.ENDC}")

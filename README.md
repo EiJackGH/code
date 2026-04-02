@@ -54,3 +54,14 @@ Run the test suite using `pytest`:
 ```bash
 pytest
 ```
+
+## Contributors
+
+The Bitcoin Trading Simulation is built and maintained by a team of dedicated developers. Check out the full list of [Contributors](CONTRIBUTORS.md).
+
+## Support the Project
+
+If you find this simulation helpful, please consider:
+- 🌟 Starring the repository on GitHub.
+- 💬 Sharing your feedback and feature requests.
+- 🛠️ Contributing to the codebase via Pull Requests.

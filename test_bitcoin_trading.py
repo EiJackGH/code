@@ -31,6 +31,7 @@ def test_simulate_trading_quiet_mode(capsys):
     """Test that quiet mode suppresses output."""
     signals = pd.DataFrame(index=range(5))
     signals['price'] = [100.0, 101.0, 102.0, 103.0, 104.0]
+    signals['signal'] = [0.0] * 5
     signals['positions'] = [0.0] * 5
 
     simulate_trading(signals, initial_cash=1000, quiet=True)
@@ -43,6 +44,7 @@ def test_simulate_trading_verbose_mode(capsys):
     """Test that verbose mode prints daily ledger."""
     signals = pd.DataFrame(index=range(2))
     signals['price'] = [100.0, 101.0]
+    signals['signal'] = [0.0, 0.0]
     signals['positions'] = [0.0, 0.0]
 
     simulate_trading(signals, initial_cash=1000, quiet=False)
