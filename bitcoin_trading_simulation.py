@@ -154,6 +154,23 @@ if __name__ == "__main__":
     if args.no_color:
         Colors.disable()
 
+    # Input Validation
+    if args.days <= 0:
+        print(f"{Colors.FAIL}Error: Days must be a positive integer.{Colors.ENDC}", file=sys.stderr)
+        sys.exit(1)
+
+    if args.initial_cash <= 0:
+        print(f"{Colors.FAIL}Error: Initial cash must be greater than 0.{Colors.ENDC}", file=sys.stderr)
+        sys.exit(1)
+
+    if args.initial_price <= 0:
+        print(f"{Colors.FAIL}Error: Initial price must be greater than 0.{Colors.ENDC}", file=sys.stderr)
+        sys.exit(1)
+
+    if args.volatility < 0:
+        print(f"{Colors.FAIL}Error: Volatility must be non-negative.{Colors.ENDC}", file=sys.stderr)
+        sys.exit(1)
+
     # Simulate prices
     prices = simulate_bitcoin_prices(days=args.days, initial_price=args.initial_price, volatility=args.volatility)
 
