@@ -12,3 +12,7 @@
 ## 2025-03-23 - Game Key Scrolling
 **Learning:** Browsers natively scroll the page when users press Space or Arrow keys. When building a web-based game, this creates a frustrating UX where the game viewport jumps around while playing.
 **Action:** Always call `e.preventDefault()` on keydown events for typical game controls ("Space", "ArrowUp", etc.) when the focus is on a game container or the body.
+
+## 2026-04-10 - Thousands Separators for Numerical Output
+**Learning:** Dense numerical data (like $10000.00) in CLI output is hard to parse and increases cognitive load. Adding thousands separators ($10,000.00) significantly improves readability and the perceived quality of the tool.
+**Action:** Always use thousands separators (e.g., `:,.2f` in Python) when formatting large numerical or financial values in CLI outputs.
