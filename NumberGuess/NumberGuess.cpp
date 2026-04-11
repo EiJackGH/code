@@ -56,6 +56,9 @@ int main() {
     }
 
     cout << "----------------------------------------" << endl;
-    system("pause"); // Essential for Dev-C++ to keep the window open
+    cout << "Press Enter to exit..." << endl;
+    cin.clear();
+    cin.ignore(10000, '\n');
+    cin.get();
     return 0;
 }

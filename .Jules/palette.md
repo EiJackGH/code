@@ -12,3 +12,7 @@
 ## 2025-03-23 - Game Key Scrolling
 **Learning:** Browsers natively scroll the page when users press Space or Arrow keys. When building a web-based game, this creates a frustrating UX where the game viewport jumps around while playing.
 **Action:** Always call `e.preventDefault()` on keydown events for typical game controls ("Space", "ArrowUp", etc.) when the focus is on a game container or the body.
+
+## 2023-10-25 - Cross-Platform CLI Exit Prompt
+**Learning:** Using OS-specific commands like system("pause") for basic UX features breaks usability on other platforms and lacks clear accessibility instruction.
+**Action:** Replace system("pause") with standard input stream functions (cin.get()) paired with explicit instructional text (e.g., "Press Enter to exit...") to ensure consistent, accessible behavior across all platforms.
