@@ -214,15 +214,21 @@ int main() {
         for (size_t i = 0; i < countries.size(); ++i) {
             if (i == (size_t)playerIndex || !countries[i].isAlive) continue;
 
+            // Check if any valid targets exist to avoid infinite loops
+            int aliveCount = 0;
+            for (const auto& c : countries) {
+                if (c.isAlive) aliveCount++;
+            }
+
             // Simple AI: randomly decide to attack or recruit
             int action = rand() % 3;
-            if (action == 0) { // Attack
+            if (action == 0 && aliveCount > 1) { // Attack only if others are alive
                 int target;
                 do {
                     target = rand() % countries.size();
                 } while (target == (int)i || !countries[target].isAlive);
                 performAttack(i, target);
-            } else if (action == 1) { // Recruit
+            } else if (action == 1 || (action == 0 && aliveCount == 1)) { // Recruit
                 int cost = 100;
                 if (countries[i].budget >= cost) {
                     countries[i].budget -= cost;
