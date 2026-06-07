@@ -58,7 +58,10 @@
 <body>
 
 <div id="game">
-  <div id="score">Score: 0</div>
+  <div id="score" aria-live="polite" aria-atomic="true">Score: 0</div>
+  <div id="instructions" style="position: absolute; top: 40px; left: 10px; color: white; font-size: 14px; font-family: Arial; opacity: 0.8;" aria-hidden="true">
+    [Press Space or Up Arrow to jump]
+  </div>
   <div id="mario"></div>
   <div class="ground"></div>
 </div>
