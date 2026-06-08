@@ -44,7 +44,7 @@
       background: #2ecc71;
     }
 
-    #score {
+    #score-container {
       position: absolute;
       top: 10px;
       left: 10px;
@@ -52,13 +52,27 @@
       font-size: 20px;
       font-family: Arial;
     }
+
+    #instructions {
+      position: absolute;
+      top: 40px;
+      left: 10px;
+      color: white;
+      font-size: 14px;
+      font-family: Arial;
+      opacity: 0.8;
+    }
   </style>
 </head>
 
 <body>
 
 <div id="game">
-  <div id="score">Score: 0</div>
+  <div id="score-container">
+    <span>Score: </span>
+    <span id="score" aria-live="polite" aria-atomic="true">0</span>
+  </div>
+  <div id="instructions">Press Space or Up Arrow to jump</div>
   <div id="mario"></div>
   <div class="ground"></div>
 </div>
@@ -118,7 +132,7 @@
         clearInterval(move);
         goomba.remove();
         score++;
-        scoreText.innerText = "Score: " + score;
+        scoreText.innerText = score;
       } else {
         position -= 6;
         goomba.style.left = position + "px";
