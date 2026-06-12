@@ -52,13 +52,23 @@
       font-size: 20px;
       font-family: Arial;
     }
+
+    #controls-hint {
+      position: absolute;
+      top: 40px;
+      left: 10px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 14px;
+      font-family: Arial;
+    }
   </style>
 </head>
 
 <body>
 
 <div id="game">
-  <div id="score">Score: 0</div>
+  <div id="score" aria-live="polite" aria-atomic="true">Score: 0</div>
+  <div id="controls-hint">Press Space or Up Arrow to jump</div>
   <div id="mario"></div>
   <div class="ground"></div>
 </div>
