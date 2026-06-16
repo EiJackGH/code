@@ -52,13 +52,37 @@
       font-size: 20px;
       font-family: Arial;
     }
+
+    #instructions {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      color: white;
+      font-size: 16px;
+      font-family: Arial, sans-serif;
+    }
+
+    kbd {
+      background-color: #eee;
+      border-radius: 3px;
+      border: 1px solid #b4b4b4;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2), 0 2px 0 0 rgba(255, 255, 255, 0.7) inset;
+      color: #333;
+      display: inline-block;
+      font-size: 0.85em;
+      font-weight: 700;
+      line-height: 1;
+      padding: 2px 4px;
+      white-space: nowrap;
+    }
   </style>
 </head>
 
 <body>
 
 <div id="game">
-  <div id="score">Score: 0</div>
+  <div id="score" aria-live="polite" aria-atomic="true">Score: 0</div>
+  <div id="instructions">Press <kbd>Space</kbd> or <kbd>↑</kbd> to jump</div>
   <div id="mario"></div>
   <div class="ground"></div>
 </div>
