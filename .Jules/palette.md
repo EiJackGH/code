@@ -12,3 +12,7 @@
 ## 2025-03-23 - Game Key Scrolling
 **Learning:** Browsers natively scroll the page when users press Space or Arrow keys. When building a web-based game, this creates a frustrating UX where the game viewport jumps around while playing.
 **Action:** Always call `e.preventDefault()` on keydown events for typical game controls ("Space", "ArrowUp", etc.) when the focus is on a game container or the body.
+
+## 2025-05-18 - HTML5 Game Instructions & Screen Readers
+**Learning:** Hiding on-screen keyboard game instructions from screen readers using `aria-hidden="true"` is an anti-pattern. Even if an HTML5 canvas game might not be natively playable via a screen reader, explicitly suppressing the instructions limits accessibility tools from communicating available inputs.
+**Action:** Do not use `aria-hidden="true"` on keyboard hints or instructions unless they are already semantically covered by another linked ARIA description.
