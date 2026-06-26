@@ -52,13 +52,24 @@
       font-size: 20px;
       font-family: Arial;
     }
+
+    #instructions {
+      position: absolute;
+      top: 40px;
+      left: 10px;
+      color: white;
+      font-size: 16px;
+      font-family: Arial;
+      opacity: 0.8;
+    }
   </style>
 </head>
 
 <body>
 
 <div id="game">
-  <div id="score">Score: 0</div>
+  <div id="score" aria-live="polite" aria-atomic="true">Score: 0</div>
+  <div id="instructions">Press Space or &uarr; Arrow to jump</div>
   <div id="mario"></div>
   <div class="ground"></div>
 </div>
