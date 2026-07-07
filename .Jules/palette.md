@@ -12,3 +12,7 @@
 ## 2025-03-23 - Game Key Scrolling
 **Learning:** Browsers natively scroll the page when users press Space or Arrow keys. When building a web-based game, this creates a frustrating UX where the game viewport jumps around while playing.
 **Action:** Always call `e.preventDefault()` on keydown events for typical game controls ("Space", "ArrowUp", etc.) when the focus is on a game container or the body.
+
+## 2026-05-30 - HTML5 Game Accessibility
+**Learning:** When building interactive HTML5 widgets or games with custom keyboard event bindings, users need explicit instructions, and dynamic status updates like scores require proper ARIA attributes to be accessible to screen readers.
+**Action:** Always provide visible instructional text for custom controls, and add `aria-live="polite"` and `aria-atomic="true"` to elements like game scores that update dynamically.
