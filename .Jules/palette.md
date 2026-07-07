@@ -12,3 +12,7 @@
 ## 2025-03-23 - Game Key Scrolling
 **Learning:** Browsers natively scroll the page when users press Space or Arrow keys. When building a web-based game, this creates a frustrating UX where the game viewport jumps around while playing.
 **Action:** Always call `e.preventDefault()` on keydown events for typical game controls ("Space", "ArrowUp", etc.) when the focus is on a game container or the body.
+
+## 2025-06-10 - Screen Reader Redundancy with aria-live
+**Learning:** Placing static instructional text ("Press Space to jump") inside an `aria-live` region alongside dynamic content (like a "Score: 0" counter) forces screen readers to re-read the static instructions every time the score updates, creating a frustrating experience.
+**Action:** Extract static text into a separate sibling element, applying `aria-live` strictly to the container wrapping only the dynamic text.
