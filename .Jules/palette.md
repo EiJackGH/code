@@ -12,3 +12,6 @@
 ## 2025-03-23 - Game Key Scrolling
 **Learning:** Browsers natively scroll the page when users press Space or Arrow keys. When building a web-based game, this creates a frustrating UX where the game viewport jumps around while playing.
 **Action:** Always call `e.preventDefault()` on keydown events for typical game controls ("Space", "ArrowUp", etc.) when the focus is on a game container or the body.
+## 2026-05-28 - Interactive Element Instructions in Nunjucks
+**Learning:** For game components rendered directly in templates (like `mario-game.njk`) where the keyboard event listeners map to native browser navigation keys (Space/Arrow keys), users often don't instinctively know the custom bindings.
+**Action:** Always provide explicit, visible instructional text that tells the user exactly which keys to press, and use CSS (e.g., `pointer-events: none`, `text-shadow`) to ensure the text does not interfere with the game canvas interactions and is legible against background sprites.
