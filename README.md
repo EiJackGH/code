@@ -19,6 +19,18 @@ A Python-based CLI tool that simulates Bitcoin trading using a 'Golden Cross' mo
 pip install -r requirements.txt
 ```
 
+## Troubleshooting Installing Errors
+
+If you run into issues during installation, please refer to our troubleshooting guides:
+- [Detailed Troubleshooting Guide](troubleshooting.md)
+- [Alternative Troubleshooting Reference](trobshooting.md)
+
+### Common Fixes
+
+- **ModuleNotFoundError:** Ensure you are installing the requirements in the correct Python environment.
+- **pytest Command Not Found:** Run tests with `python -m pytest` instead of just `pytest`.
+- **venv installation errors:** Never add standard library modules like `venv` to `requirements.txt`.
+
 ## Usage
 
 Run the simulation script with default settings (60 days, $10k initial cash):
