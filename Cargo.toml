@@ -9,7 +9,7 @@ description = "High-performance experiments for the Code & Commit 2026 initiativ
 
 [dependencies]
 # For generating random numbers (like in your NumberGuess game)
-rand = "0.8.5"
+rand = "0.10.2"
 
 # For colorful terminal output (perfect for your "Zen" Easter Egg)
 colored = "3.1.1"
