@@ -12,3 +12,6 @@
 ## 2025-03-23 - Game Key Scrolling
 **Learning:** Browsers natively scroll the page when users press Space or Arrow keys. When building a web-based game, this creates a frustrating UX where the game viewport jumps around while playing.
 **Action:** Always call `e.preventDefault()` on keydown events for typical game controls ("Space", "ArrowUp", etc.) when the focus is on a game container or the body.
+## 2026-07-14 - Adding explicit instructions to interactive canvas
+**Learning:** When building interactive HTML5 widgets or games with custom keyboard event bindings that aren't native UI controls, users and screen readers lack affordances to know how to interact. Also, floating UI instructions must not block clicks.
+**Action:** Always provide explicit, visible instructional text for custom controls, separate static labels from aria-live dynamic content, and use `pointer-events: none` on floating instruction overlays.
