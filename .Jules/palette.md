@@ -12,3 +12,6 @@
 ## 2025-03-23 - Game Key Scrolling
 **Learning:** Browsers natively scroll the page when users press Space or Arrow keys. When building a web-based game, this creates a frustrating UX where the game viewport jumps around while playing.
 **Action:** Always call `e.preventDefault()` on keydown events for typical game controls ("Space", "ArrowUp", etc.) when the focus is on a game container or the body.
+## 2024-07-18 - [Accessible Instructional Overlays]
+**Learning:** Adding static instructional text next to dynamic `aria-live` content provides immediate clarity for keyboard users without causing screen readers to re-read the static text. Overlay text must use `pointer-events: none` to ensure it doesn't intercept or block mouse clicks/touches on the game canvas below.
+**Action:** Extract dynamic values into dedicated `<span>`s with ARIA live attributes. Ensure instructional overlays are visually distinct and explicitly ignore pointer events.
