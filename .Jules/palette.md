@@ -12,3 +12,7 @@
 ## 2025-03-23 - Game Key Scrolling
 **Learning:** Browsers natively scroll the page when users press Space or Arrow keys. When building a web-based game, this creates a frustrating UX where the game viewport jumps around while playing.
 **Action:** Always call `e.preventDefault()` on keydown events for typical game controls ("Space", "ArrowUp", etc.) when the focus is on a game container or the body.
+
+## 2024-07-30 - Keyboard Instructions
+**Learning:** Interactive HTML5 widgets with custom keybindings require explicit, visible instructional text so users know the required inputs.
+**Action:** Add explicit instructional text for custom keyboard bindings.
