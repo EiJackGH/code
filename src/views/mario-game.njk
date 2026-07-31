@@ -52,6 +52,16 @@
       font-size: 20px;
       font-family: Arial;
     }
+
+    #instructions {
+      position: absolute;
+      top: 40px;
+      left: 10px;
+      color: white;
+      font-size: 16px;
+      font-family: Arial;
+      pointer-events: none;
+    }
   </style>
 </head>
 
@@ -59,6 +69,7 @@
 
 <div id="game">
   <div id="score">Score: 0</div>
+  <div id="instructions">Press Space or ↑ to jump!</div>
   <div id="mario"></div>
   <div class="ground"></div>
 </div>
