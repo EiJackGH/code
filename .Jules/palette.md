@@ -15,3 +15,7 @@
 ## 2025-07-31 - Explicit Game Controls
 **Learning:** When building interactive HTML5 widgets or games with custom keyboard event bindings, users may not intuitively know which keys to press, leading to confusion.
 **Action:** Always provide explicit, visible instructional text for custom keyboard controls so users know the required inputs.
+
+## 2025-08-01 - Aria-Live Static Text Separation
+**Learning:** Do not place static text (like instructions or labels) inside an `aria-live` region, as it forces screen readers to unnecessarily repeat the static text every time the dynamic content updates.
+**Action:** Extract static text into a separate sibling element or parent, leaving only the dynamic value inside the `aria-live` region.
