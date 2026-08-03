@@ -15,3 +15,7 @@
 ## 2025-07-31 - Explicit Game Controls
 **Learning:** When building interactive HTML5 widgets or games with custom keyboard event bindings, users may not intuitively know which keys to press, leading to confusion.
 **Action:** Always provide explicit, visible instructional text for custom keyboard controls so users know the required inputs.
+
+## 2025-05-15 - Screen Reader Dynamic Text
+**Learning:** Dynamic text changes, like game scores, are invisible to screen readers unless explicitly marked. Do not place static text inside an aria-live region, as it forces screen readers to unnecessarily repeat the static text every time the dynamic content updates.
+**Action:** Extract static text into a separate sibling element and add aria-live="polite" to the container of the dynamic value.
