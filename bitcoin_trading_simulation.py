@@ -76,51 +76,66 @@ def simulate_trading(signals, initial_cash=10000, quiet=False):
     """
     Simulates trading based on signals and prints a daily ledger.
     """
-    portfolio = pd.DataFrame(index=signals.index).fillna(0.0)
-    portfolio['price'] = signals['price']
-    portfolio['cash'] = float(initial_cash)
-    portfolio['btc'] = 0.0
-    portfolio['total_value'] = float(initial_cash)
+    cash_val = float(initial_cash)
+    btc_val = 0.0
+
+    cash_list = []
+    btc_list = []
+    total_value_list = []
+
+    total_signals = len(signals)
 
     if not quiet:
         print(f"\n{Colors.HEADER}{Colors.BOLD}------ Daily Trading Ledger ------{Colors.ENDC}")
-    for idx, (i, row) in enumerate(signals.iterrows()):
+
+    for idx, row in enumerate(signals.itertuples()):
+        i = row.Index
+        price = row.price
+        positions = row.positions
+
         if quiet and sys.stdout.isatty():
-            progress = (idx + 1) / len(signals)
+            progress = (idx + 1) / total_signals
             bar_length = 30
             filled_len = int(bar_length * progress)
             bar = '█' * filled_len + '-' * (bar_length - filled_len)
             print(f'\r{Colors.BLUE}Simulation Progress: |{bar}| {progress:.1%}{Colors.ENDC}', end='', flush=True)
 
-        if i > 0:
-            portfolio.loc[i, 'cash'] = portfolio.loc[i-1, 'cash']
-            portfolio.loc[i, 'btc'] = portfolio.loc[i-1, 'btc']
-
         # Buy signal
-        if row['positions'] == 2.0:
-            btc_to_buy = portfolio.loc[i, 'cash'] / row['price']
-            portfolio.loc[i, 'btc'] += btc_to_buy
-            portfolio.loc[i, 'cash'] -= btc_to_buy * row['price']
+        if positions == 2.0:
+            btc_to_buy = cash_val / price
+            btc_val += btc_to_buy
+            cash_val -= btc_to_buy * price
             if not quiet:
-                print(f"{Colors.GREEN}🟢 Day {i}: Buy {btc_to_buy:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
+                print(f"{Colors.GREEN}🟢 Day {i}: Buy {btc_to_buy:.4f} BTC at ${price:.2f}{Colors.ENDC}")
 
         # Sell signal
-        elif row['positions'] == -2.0:
-            if portfolio.loc[i, 'btc'] > 0:
-                cash_received = portfolio.loc[i, 'btc'] * row['price']
-                portfolio.loc[i, 'cash'] += cash_received
+        elif positions == -2.0:
+            if btc_val > 0:
+                cash_received = btc_val * price
+                cash_val += cash_received
                 if not quiet:
-                    print(f"{Colors.FAIL}🔴 Day {i}: Sell {portfolio.loc[i, 'btc']:.4f} BTC at ${row['price']:.2f}{Colors.ENDC}")
-                portfolio.loc[i, 'btc'] = 0
+                    print(f"{Colors.FAIL}🔴 Day {i}: Sell {btc_val:.4f} BTC at ${price:.2f}{Colors.ENDC}")
+                btc_val = 0.0
 
-        portfolio.loc[i, 'total_value'] = portfolio.loc[i, 'cash'] + portfolio.loc[i, 'btc'] * row['price']
+        total_value = cash_val + btc_val * price
+
+        cash_list.append(cash_val)
+        btc_list.append(btc_val)
+        total_value_list.append(total_value)
 
         if not quiet:
-            print(f"Day {i}: Portfolio Value: ${portfolio.loc[i, 'total_value']:.2f}, "
-                  f"Cash: ${portfolio.loc[i, 'cash']:.2f}, BTC: {portfolio.loc[i, 'btc']:.4f}")
+            print(f"Day {i}: Portfolio Value: ${total_value:.2f}, "
+                  f"Cash: ${cash_val:.2f}, BTC: {btc_val:.4f}")
 
     if quiet and sys.stdout.isatty():
         print()
+
+    portfolio = pd.DataFrame({
+        'price': signals['price'],
+        'cash': cash_list,
+        'btc': btc_list,
+        'total_value': total_value_list
+    }, index=signals.index)
 
     return portfolio
 
