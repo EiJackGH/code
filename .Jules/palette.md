@@ -19,3 +19,7 @@
 ## 2024-08-06 - Screen Reader Accessible Dynamic Text
 **Learning:** Dynamic text changes, like game scores, are invisible to screen readers unless explicitly marked. Do not place static text (like instructions) inside an `aria-live` region, as it forces screen readers to unnecessarily repeat the static text every time the dynamic content updates. Extract static text into a separate sibling element.
 **Action:** Add `aria-live="polite"` to the container of the dynamic value and extract static text out of it.
+
+## 2024-05-24 - Highlight Keyboard Shortcuts
+**Learning:** Explicitly highlighting keyboard shortcuts using semantic <kbd> tags with physical key styling improves intuitiveness and discoverability. Always wrap key shortcuts in <kbd> and apply text-shadows to ensure high contrast against dynamic backgrounds.
+**Action:** Use <kbd> tags with appropriate physical key styling and text-shadows for inline keyboard instructions.
