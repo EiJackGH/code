@@ -61,6 +61,17 @@
       font-size: 16px;
       font-family: Arial;
       pointer-events: none;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    }
+
+    kbd {
+      background-color: #eee;
+      color: #333;
+      border: 1px solid #b4b4b4;
+      border-radius: 3px;
+      padding: 2px 4px;
+      font-family: monospace;
+      text-shadow: none;
     }
   </style>
 </head>
@@ -69,7 +80,7 @@
 
 <div id="game">
   <div id="score-container">Score: <span id="score-value" aria-live="polite">0</span></div>
-  <div id="instructions">Press Space or ↑ to jump!</div>
+  <div id="instructions">Press <kbd>Space</kbd> or <kbd>↑</kbd> to jump!</div>
   <div id="mario"></div>
   <div class="ground"></div>
 </div>
